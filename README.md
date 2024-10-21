@@ -1,4 +1,4 @@
-# Songle 🎧 - A Spotify Wordle Game
+# Songle 🎧 - A Spotify + Wordle Game
 
 Songle is a fun and interactive web app that blends the classic word-guessing game Wordle with your favorite music from Spotify. With Songle, you can play a wordle-style game where the objective is to guess the name of a song based on progressively revealed clues.
 
