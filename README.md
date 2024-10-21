@@ -1,10 +1,10 @@
-# Spotle 🎧 - A Spotify Wordle Game
+# Songle 🎧 - A Spotify Wordle Game
 
-Spotle is a fun and interactive web app that blends the classic word-guessing game Wordle with your favorite music from Spotify. With Spotle, you can play a wordle-style game where the objective is to guess the name of a song based on progressively revealed clues.
+Songle is a fun and interactive web app that blends the classic word-guessing game Wordle with your favorite music from Spotify. With Songle, you can play a wordle-style game where the objective is to guess the name of a song based on progressively revealed clues.
 
-But what sets Spotle apart? Personalization! Unlike generic music games, Spotle uses your Spotify account to create a game experience tailored just for you. Whether you’re a fan of throwback hits or the latest chart-toppers, Spotle draws from your most recently played tracks, creating a fresh, engaging experience every time. You can connect your account and try to guess songs from your Top 50 most recently played, or any playlist of yours with 50 songs or more, making it feel like a game made for you!
+But what sets Songle apart? Personalization! Unlike generic music games, Songle uses your Spotify account to create a game experience tailored just for you. Whether you’re a fan of throwback hits or the latest chart-toppers, Songle draws from your most recently played tracks, creating a fresh, engaging experience every time. You can connect your account and try to guess songs from your Top 50 most recently played, or any playlist of yours with 50 songs or more, making it feel like a game made for you!
 
-And for those who don’t want to log in, Spotle lets you jump into popular public playlists like RapCaviar or Viva Latino, so there's always something new to guess.
+And for those who don’t want to log in, Songle lets you jump into popular public playlists like RapCaviar or Viva Latino, so there's always something new to guess.
 
 ## How It Works
 You have **6 guesses** to guess the name of a song. After each incorrect guess, new clues are revealed to help you narrow down your answer:
@@ -24,7 +24,7 @@ If you guess correctly before the 6th try, you win! If not, you can still enjoy 
 
 
 ## Upcoming Features 🚀
-Spotle is currently in active development. Some exciting features on the way include:
+Songle is currently in active development. Some exciting features on the way include:
 - 👫 **Multiplayer Game Modes**: Challenge your friends in real-time.
 - 🛠️ **Personalized Accounts**: Save game stats, track progress, and unlock custom modes.
 
