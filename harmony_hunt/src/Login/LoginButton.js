@@ -8,8 +8,8 @@ const LoginButton = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/get-random-song-info');
-            navigate('/game', {state:{loginData:response.data}})
+            const response = await axios.get('http://127.0.0.1:5000/start-top-fifty-game');
+            navigate('/game')
         } catch (error) {
             console.error("Failed to login:", error.message);
         }
