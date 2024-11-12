@@ -15,7 +15,7 @@ class Song:
         self.album_image_url = track_info['album_image_url']
         self.genre = track_info['genre']
         self.clip = track_info['clip']
-        self.snippet = self.shorten_audio_url(self.clip)
+        self.snippet = self._shorten_audio_url(self.clip)
 
     """
     Gets the song name
