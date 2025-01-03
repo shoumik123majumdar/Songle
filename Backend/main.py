@@ -43,7 +43,7 @@ def generate_random_song():
 """
 
 
-@app.route('/start-top-fifty-game')
+@app.route('/start-top-fifty-recents-game')
 @cross_origin()
 def start_top_fifty_game():
     clear_cache()

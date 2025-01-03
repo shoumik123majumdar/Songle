@@ -102,7 +102,7 @@ class Spotipy:
     def get_current_user_top_artists(self,artist_limit=5):
         return self.__get_top("artist",artist_limit)
 
-    #DONNY REMAKE THIS ONE
+    
     def get_current_user_recently_played(self,limit=50):
         response = self.sp.current_user_recently_played(limit=limit)['items']
         tracks = []
@@ -110,7 +110,7 @@ class Spotipy:
             tracks.append( item['track']['id'])
         return tracks
 
-    #DONNY REMAKE THIS ONE
+   
     def get_track_info(self,track_id):
         track = self.sp.track(track_id = track_id)
         track_info = {}

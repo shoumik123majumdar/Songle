@@ -26,7 +26,7 @@ class Game:
         self.guess_count+=1
         #Check if the game is over first and foremost
         if(self._is_game_over(guess)):
-            self.end_game()
+            self.end_game() 
         else:
             if self.guess_count>0:
                 return self.target_song.get_genre()
