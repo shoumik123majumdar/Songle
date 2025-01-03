@@ -1,5 +1,6 @@
 import requests
 
+
 def get_song_preview(song_name,artist_name):
     # Deezer search API endpoint 
     search_url = f"https://api.deezer.com/search"
