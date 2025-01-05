@@ -51,21 +51,25 @@ def start_top_fifty_game():
     CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
     SCOPE = "user-read-playback-state user-top-read user-read-recently-played"
 
+    """CODE REFACTOR STARTS HERE"""
     sp = Spotipy(CLIENT_ID, CLIENT_SECRET, SCOPE)
     sp.authenticate_user()
+    recently_played_track_id_list = list(set(sp.get_current_user_recently_played(limit=50)))
 
-    tracks = list(set(sp.get_current_user_recently_played(limit=50)))
-    if len(tracks) == 0:
-        return jsonify({"error": "Not enough songs played recently"}), 400
-    #Handle when user doesn't have enough songs (aka len(tracks) ==0) or if persistence is implemented, tracks have already been used
-    #Prompt them with something like "Listen to more new music"
-    #Test this out by creating a new spotify account and trying the app.
-    song_index = random.randint(0, len(tracks) - 1)
-    # Randomly chooses one of the 50 most recently played tracks
-    chosen_track_id = tracks[song_index]
+    if len(recently_played_track_id_list)==0:
+        return jsonify({"error":"Not enough recent tracks. Listen to more music and come back!"}) #Test this functionality out with a new Spotify account
+    
+    song_index = random.randint(0, len(recently_played_track_id_list) - 1)  # Randomly chooses one of the 50 most recently played tracks
+    chosen_track_id = recently_played_track_id_list[song_index]
+    track_info = sp.get_track_info(chosen_track_id)
+    track_name = song_info["track_name"]
+    artist_name = song_info["artist"]
+    """
+    Once track_name and artist_name are obtained from the recently_played_track_id_list... 
+    we can introduce a deezer object method to search for the song on Deezer and verify that it has a preview_url
+    """
 
-    song_info = sp.get_track_info(chosen_track_id)
-    song = Song(song_info)
+
     global game
     game = Game(song)
     #Return the album cover to be rendered on the user-side
