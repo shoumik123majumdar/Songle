@@ -113,6 +113,7 @@ class Spotipy:
     #DONNY REMAKE THIS ONE
     def get_track_info(self,track_id):
         track = self.sp.track(track_id = track_id)
+        print(track)
         track_info = {}
 
         track_info['track_name'] = self.clean_track_name(track["name"])
@@ -125,8 +126,8 @@ class Spotipy:
         artist_info = self.sp.artist(artist_id)
         track_info['genre'] = artist_info['genres']
 
-        track_info['clip'] = track['preview_url']
-        track_info['snippet'] = self.shorten_audio_url(track['preview_url'])
+        #track_info['clip'] = track['preview_url']
+        #track_info['snippet'] = self.shorten_audio_url(track['preview_url'])
 
         return track_info
 

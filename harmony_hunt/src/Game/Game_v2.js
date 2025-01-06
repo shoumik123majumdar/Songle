@@ -1,19 +1,27 @@
 import React, {useRef, useState} from 'react';
 import '../Login/harmony-hunt-logo_480.png';
-import './game_styles.css'
-import AlbumImage from './AlbumImage'
-import GuessInput from "./GuessInput"
-import Genre from "./Genre"
-import ReleaseDate from "./ReleaseDate"
-import ArtistName from "./ArtistName"
-import GameOver from './GameOver.js'
-import AudioPlayer from "./AudioPlayer"
-import {useLocation} from 'react-router-dom';
-import stringSimilarity from 'string-similarity';
 
 
 
-function Game() { 
+function Game() {
+    const location = useLocation();
+    const albumURL = location.state?.gameData;
+
+    async function handleGuess() {
+        
+      }
+
+    return (
+  
+        <div className="container">
+          <AlbumImage image_url = {albumURL.album_cover} isBlurred = {isBlurred} />
+          <div id="guess-box">
+            <GuessInput guessRef = {guessRef} handleGuess = {handleGuess} isDisabled = {isDisabled}/>
+          </div>
+        </div>
+        
+        
+      );
   
 }
 export default Game;

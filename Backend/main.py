@@ -10,7 +10,7 @@ import requests
 
 
 app = Flask(__name__)
-#CORS(app) #Update when we get an actual domain for the website
+CORS(app) #Update when we get an actual domain for the website
 game = None
 
 def clear_cache():
@@ -43,7 +43,7 @@ def generate_random_song():
 """
 
 
-@app.route('/start-top-fifty-game')
+@app.route('/start-top-fifty-game',methods=['POST'])
 @cross_origin()
 def start_top_fifty_game():
     clear_cache()
@@ -55,6 +55,8 @@ def start_top_fifty_game():
     sp.authenticate_user()
 
     tracks = list(set(sp.get_current_user_recently_played(limit=50)))
+    if len(tracks) == 0:
+        return jsonify({"error": "Not enough songs played recently"}), 400
     #Handle when user doesn't have enough songs (aka len(tracks) ==0) or if persistence is implemented, tracks have already been used
     #Prompt them with something like "Listen to more new music"
     #Test this out by creating a new spotify account and trying the app.
@@ -66,14 +68,11 @@ def start_top_fifty_game():
     song = Song(song_info)
     global game
     game = Game(song)
-    return jsonify({"message":"Game started"})
+    #Return the album cover to be rendered on the user-side
+    return jsonify({"album_cover":f"{song.get_album_image()}"})
 
-@app.route('/start', methods=['POST'])
-def start_game():
-    global game
-    song_data = request.get_json()
-    game = Game(song_data)  # Replace with actual song data structure
-    return jsonify({"message": "Game started"})
+
+"""
 
 @app.route('/make-guess', methods=['POST'])
 def make_guess():
@@ -96,6 +95,7 @@ def end_game():
 
     game._end_game()
     return jsonify({"message": "Game ended"})
+"""
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -17,7 +17,7 @@ class Game:
 
         :param guess: The user's song guess (string).
         :return: A hint based on the current guess count if the game continues
-            - 1st guess: song_genre
+            - 1st guess: song_genre 
             - 2nd guess: release_date
             - 3rd guess: artist_name
             - 4th guess: song_snippet

@@ -8,9 +8,9 @@ const LoginButton = () => {
 
     const handleLogin = async () => {
         try {
-            await axios.get('http://127.0.0.1:5000/start-top-fifty-game');
+            const response = await axios.post('http://127.0.0.1:5000/start-top-fifty-game');
             console.log("Game started successfully")
-            navigate('/game')
+            navigate('/game', { state: { albumURL: response.data } });
         } catch (error) {
             console.error("Failed to login:", error.message);
         }
