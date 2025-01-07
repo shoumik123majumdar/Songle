@@ -219,7 +219,7 @@ class Spotipy:
         return tracks
 
    
-    def get_track_info(self,track_id,preview_url,clip):
+    def get_track_info(self,track_id):
         """
         Get detailed information about a specific track.
 
@@ -235,11 +235,8 @@ class Spotipy:
                 - album_name: Name of the album
                 - album_image_url: URL of album cover image
                 - genre: List of artist genres
-                - clip: Preview URL for the track
-                - snippet: Base64 encoded short audio snippet
         """
         track = self.sp.track(track_id = track_id)
-        print(track)
         track_info = {}
 
         track_info['track_name'] = self.clean_track_name(track["name"])
@@ -251,9 +248,6 @@ class Spotipy:
         artist_id = track['artists'][0]['id']
         artist_info = self.sp.artist(artist_id)
         track_info['genre'] = artist_info['genres']
-
-        track_info['clip'] = preview_url
-        track_info['snippet'] = self.shorten_audio_url(preview_url)
 
         return track_info
 

@@ -1,6 +1,7 @@
 import os
 import random
 from Spotipy import Spotipy
+from Deezer import Deezer
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_cors import cross_origin
@@ -17,31 +18,6 @@ def clear_cache():
     if os.path.exists("../.cache"):
         os.remove("../.cache")
 
-"""
-@app.route('/generate-random-song') #Ask what a good naming principle is for
-@cross_origin()
-def generate_random_song():
-    clear_cache()
-    CLIENT_ID = os.environ.get("CLIENT_ID")
-    CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
-    SCOPE = "user-read-playback-state user-top-read user-read-recently-played"
-
-    sp = Spotipy(CLIENT_ID, CLIENT_SECRET, SCOPE)
-    sp.authenticate_user()
-
-    tracks = list(set(sp.get_current_user_recently_played(limit=50)))
-    #Handle when user doesn't have enough songs (aka len(tracks) ==0) or if persistence is implemented, tracks have already been used
-    #Prompt them with something like "Listen to more new music"
-    #Test this out by creating a new spotify account and trying the app.
-    song_index = random.randint(0, len(tracks) - 1)
-
-    # Randomly chooses one of the 50 most recently played tracks
-    chosen_track_id = tracks[song_index]
-    song_info = sp.get_track_info(chosen_track_id)
-    song = Song(song_info) #TODO: Preserve state of the song and figure out how to transition from this method to the start of the game
-    return jsonify(song_info)
-"""
-
 
 @app.route('/start-top-fifty-recents-game')
 @cross_origin()
@@ -50,25 +26,28 @@ def start_top_fifty_game():
     CLIENT_ID = os.environ.get("CLIENT_ID")
     CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
     SCOPE = "user-read-playback-state user-top-read user-read-recently-played"
-
-    """CODE REFACTOR STARTS HERE"""
+    
     sp = Spotipy(CLIENT_ID, CLIENT_SECRET, SCOPE)
     sp.authenticate_user()
+    deezer = Deezer()
     recently_played_track_id_list = list(set(sp.get_current_user_recently_played(limit=50)))
+    song = None
 
-    if len(recently_played_track_id_list)==0:
-        return jsonify({"error":"Not enough recent tracks. Listen to more music and come back!"}) #Test this functionality out with a new Spotify account
+    while(True):
+        if len(recently_played_track_id_list)==0:
+            return jsonify({"error":"Not enough recent tracks (or no song data could be found for them). Listen to more music and come back!"}) #Test this functionality out with a new Spotify account
     
-    song_index = random.randint(0, len(recently_played_track_id_list) - 1)  # Randomly chooses one of the 50 most recently played tracks
-    chosen_track_id = recently_played_track_id_list[song_index]
-    track_info = sp.get_track_info(chosen_track_id)
-    track_name = song_info["track_name"]
-    artist_name = song_info["artist"]
-    """
-    Once track_name and artist_name are obtained from the recently_played_track_id_list... 
-    we can introduce a deezer object method to search for the song on Deezer and verify that it has a preview_url
-    """
-
+        song_index = random.randint(0, len(recently_played_track_id_list) - 1)  
+        chosen_track_id = recently_played_track_id_list[song_index] # Randomly chooses one of the 50 most recently played tracks
+        track_info = sp.get_track_info(chosen_track_id) # Get track information from Spotify
+        preview_url= deezer.find_track_preview_url(track_info["track_name"],track_info["artist"]) # Attempts to find track from deezer
+        
+        if preview_url: # if 30 second preview url exists for the track, choose the song to start the game...
+            track_info['clip'] = preview_url
+            song = Song(track_info)
+            break
+        else: # if not, continue looping through the recently_played_track_id_list 
+            recently_played_track_id_list.pop(song_index)
 
     global game
     game = Game(song)
