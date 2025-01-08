@@ -55,3 +55,15 @@ coverage/
 # Cache directories
 .cache/
 .pytest_cache/
+.venv/bin/activate.csh
+.gitignore
+.venv/bin/activate
+.venv/pyvenv.cfg
+.venv/bin/activate.fish
+.venv/bin/Activate.ps1
+.venv/bin/pip
+.venv/bin/python
+.venv/bin/pip3.11
+.venv/bin/pip3
+.venv/bin/python3
+.venv/bin/python3.11
