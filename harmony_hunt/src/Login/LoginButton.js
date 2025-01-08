@@ -8,7 +8,7 @@ const LoginButton = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:5000/start-top-fifty-game');
+            const response = await axios.post('http://127.0.0.1:5000/start-top-fifty-recents-game');
             console.log("Game started successfully")
             navigate('/game', { state: { albumURL: response.data } });
         } catch (error) {
