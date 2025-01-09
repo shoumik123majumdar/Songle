@@ -67,3 +67,4 @@ coverage/
 .venv/bin/pip3
 .venv/bin/python3
 .venv/bin/python3.11
+.cache

@@ -50,7 +50,6 @@ def start_top_fifty_game():
         
         if preview_url: # if 30 second preview url exists for the track, choose the song to start the game...
             track_info['clip'] = preview_url
-            print(preview_url)
             song = Song(track_info)
             break
         else: # if not, continue looping through the recently_played_track_id_list 
@@ -59,33 +58,31 @@ def start_top_fifty_game():
     global game
     game = Game(song)
     #Return the album cover to be rendered on the user-side
+
+    #TODO: Add code that blurs album cover and handles blurring/unblurring logic on the backend
     return jsonify({"album_cover":f"{song.get_album_image()}"})
 
 
-"""
+
 
 @app.route('/make-guess', methods=['POST'])
 def make_guess():
     if not game:
         return jsonify({"error": "Game not started"}), 400
 
-    guess = request.get_json().get("guess")
-    hint = game.process_guess(guess)
+    guess = request.get_json().get("guess") # Get the user's guess from the request body
 
-    if hint == "unblur":
-        return jsonify({"action": "unblur"})
+    game_result = game.process_guess(guess) #process the guess in the game object and retrieve the hint 
+    
+    if game_result == "unblur":
+        return jsonify({"action": game_result})
+    elif game_result == "Game Over":
+        return jsonify({"result" : game_result})
+    elif game_result[0] == "U":
+        return jsonify({"result": game_result})
     else:
-        return jsonify({"hint": hint})
+        return jsonify({"hint": game_result})
 
-
-@app.route('/end-game', methods=['POST'])
-def end_game():
-    if not game:
-        return jsonify({"error": "Game not started"}), 400
-
-    game._end_game()
-    return jsonify({"message": "Game ended"})
-"""
 
 if __name__ == '__main__':
     app.run(debug=True)

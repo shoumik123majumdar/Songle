@@ -57,11 +57,14 @@ class Song:
     Gets the URL of the album image
     Inputs: N/A
     Outputs:
-        - self.album_image_url: URL of the album image
+        - 
     """
-    def get_album_image(self):
+    def get_unblurred_album_image(self):
         return self.album_image_url
 
+    """
+    """
+    
     """
     Gets the genre of the song
     Inputs: N/A
