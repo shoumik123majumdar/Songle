@@ -59,12 +59,9 @@ class Song:
     Outputs:
         - 
     """
-    def get_unblurred_album_image(self):
+    def get_album_image(self):
         return self.album_image_url
 
-    """
-    """
-    
     """
     Gets the genre of the song
     Inputs: N/A

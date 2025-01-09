@@ -1,46 +1,66 @@
 from fuzzywuzzy import fuzz
 
 class Game:
-    """Backend logic for a Spotle game is stored here"""
-    def __init__(self,song_info):
+    def __init__(self, song_info):
         self.target_song_info = song_info
         self.guess_count = 0
+        # Track revealed hints
+        self.revealed_hints = {
+            "genre": None,
+            "release_date": None,
+            "artist": None,
+            "audio": None,
+            "album_cover": None
+        }
 
+    def _get_all_hints(self):
+        """Helper method to get all hints"""
+        return {
+            "genre": self.target_song_info.get_genre(),
+            "release_date": self.target_song_info.get_release_date(),
+            "artist": self.target_song_info.get_artist_name(),
+            "audio": self.target_song_info.get_snippet(),
+            "album_cover": self.target_song_info.get_unblurred_album_image()
+        }
 
-    def process_guess(self,guess):
+    def process_guess(self, guess):
         """
-        Processes the user's guess and advances the game state accordingly.
-
-        This method handles the core game loop when a user submits a guess.
-        It increments the guess count, checks if the game is over, and, if not,
-        provides additional hints based on the number of guesses made.
-
-        :param guess: The user's song guess (string).
-        :return: A hint based on the current guess count if the game continues
-            - 1st guess: song_genre 
-            - 2nd guess: release_date
-            - 3rd guess: artist_name
-            - 4th guess: song_snippet
-            - 5th guess: instruction to unblur album cover
-            OR
-            result: The game result if the game is over. "Game Over" if user lost, "User Won" if the user won
+        Process the user's guess and return appropriate game state and hints
         """
-        self.guess_count+=1
-        #Check if the game is over first and foremost
+        self.guess_count += 1
         is_game_over, result = self._is_game_over(guess)
-        if(is_game_over):
-            return result
-        else:
-            if self.guess_count>0:
-                return self.target_song_info.get_genre()
-            elif self.guess_count>1:
-                return self.target_song_info.get_release_date()
-            elif self.guess_count>2:
-                return self.target_song_info.get_artist_name()
-            elif self.guess_count>3:
-                return self.target_song_info.get_snippet()
-            elif self.guess_count>4:
-                return "unblur" # Replace with returning the album cover image unblurred to render in the UI
+        
+        # Update revealed hints based on guess count
+        if self.guess_count > 0:
+            self.revealed_hints["genre"] = self.target_song_info.get_genre()
+        if self.guess_count > 1:
+            self.revealed_hints["release_date"] = self.target_song_info.get_release_date()
+        if self.guess_count > 2:
+            self.revealed_hints["artist"] = self.target_song_info.get_artist_name()
+        if self.guess_count > 3:
+            self.revealed_hints["audio"] = self.target_song_info.get_snippet()
+        if self.guess_count > 4:
+            self.revealed_hints["album_cover"] = self.target_song_info.get_unblurred_album_image()
+
+        response = {
+            "gameState": {
+                "guessCount": self.guess_count,
+                "isGameOver": is_game_over,
+                "wonGame": False,
+                "correctSong": self.target_song_info.track_name
+            },
+            "hints": self.revealed_hints
+        }
+
+        if is_game_over:
+            if "Won" in result:  # User won
+                response["gameState"]["wonGame"] = True
+                response["hints"] = self._get_all_hints()  # Reveal all hints
+            else:  # User lost
+                response["gameState"]["wonGame"] = False
+                response["hints"] = self._get_all_hints()  # Reveal all hints
+        
+        return response
 
     def _is_game_over(self,guess):
         """
