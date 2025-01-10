@@ -1,15 +1,11 @@
 import React from 'react'
 
 
-function GameOver({guessCount,song_title,guessIsValid})
+function GameOver({gameOverMessage})
 {
-    var labelContent = "Game Over, The correct song is: " + song_title;
-    if (guessIsValid){
-        labelContent = "Congrats you guessed the song: " + song_title + ", in " + guessCount+ " guesses!";
-    }
     return (
         <div >
-            <label className='hint'> {labelContent} </label>
+            <label className='hint'> {gameOverMessage} </label>
         </div>
     );
 

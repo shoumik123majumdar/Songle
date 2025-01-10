@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-function ArtistName({song_artist})
+function Artist({song_artist})
 {
     return (
         <div >
@@ -10,4 +10,4 @@ function ArtistName({song_artist})
     );
 }
 
-export default ArtistName
+export default Artist

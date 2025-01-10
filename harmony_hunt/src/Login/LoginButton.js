@@ -10,7 +10,7 @@ const LoginButton = () => {
         try {
             const response = await axios.post('http://127.0.0.1:5000/start-top-fifty-recents-game');
             console.log("Game started successfully")
-            navigate('/game', { state: { albumURL: response.data } });
+            navigate('/game', { state: { albumURL: response.data.album_cover } });
         } catch (error) {
             console.error("Failed to login:", error.message);
         }

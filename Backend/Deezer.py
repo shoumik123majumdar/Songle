@@ -34,9 +34,3 @@ class Deezer:
         except requests.exceptions.RequestException:
             return None
         
-    
-
-if __name__ == "__main__":
-    deez_nuts = Deezer()
-    print(deez_nuts.find_track_preview_url("Money Trees","Kendrick Lamar"))
-

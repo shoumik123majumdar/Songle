@@ -2,7 +2,8 @@ import React from 'react'
 
 
 function Genre({song_genre})
-{
+{   
+    //
     var genre_text = "Genres : "
     for (let i=0; i<song_genre.length-1;i++)
     {

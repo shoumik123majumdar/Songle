@@ -9,8 +9,9 @@ class Game:
             "genre": None,
             "release_date": None,
             "artist": None,
-            "audio": None,
-            "album_cover": None
+            "audio_snippet": None,
+            "album_cover_status": "blurred",
+            "full_audio_clip": None
         }
 
     def _get_all_hints(self):
@@ -19,8 +20,9 @@ class Game:
             "genre": self.target_song_info.get_genre(),
             "release_date": self.target_song_info.get_release_date(),
             "artist": self.target_song_info.get_artist_name(),
-            "audio": self.target_song_info.get_snippet(),
-            "album_cover": self.target_song_info.get_unblurred_album_image()
+            "audio_snippet": self.target_song_info.get_snippet(),
+            "album_cover_status": "unblur",
+            "full_audio_clip":self.target_song_info.get_clip()
         }
 
     def process_guess(self, guess):
@@ -38,9 +40,9 @@ class Game:
         if self.guess_count > 2:
             self.revealed_hints["artist"] = self.target_song_info.get_artist_name()
         if self.guess_count > 3:
-            self.revealed_hints["audio"] = self.target_song_info.get_snippet()
+            self.revealed_hints["audio_snippet"] = self.target_song_info.get_snippet()
         if self.guess_count > 4:
-            self.revealed_hints["album_cover"] = self.target_song_info.get_unblurred_album_image()
+            self.revealed_hints["album_cover_status"] = "unblur"
 
         response = {
             "gameState": {
@@ -72,10 +74,10 @@ class Game:
         :return: boolean True if game is over, False if not
         """
         if self.guess_count>5:
-            return True,"Game Over"
+            return True,"Lost"
         elif self._validate_user_guess(guess):
-            return True, f"User Won in {self.guess_count} tries"
-        return False
+            return True, "Won"
+        return False, 'Ongoing'
 
     def _validate_user_guess(self,guess):
         """

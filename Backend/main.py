@@ -2,7 +2,7 @@ import os
 import random
 from Spotipy import Spotipy
 from Deezer import Deezer
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_cors import cross_origin
 from Song import Song
@@ -59,29 +59,34 @@ def start_top_fifty_game():
     game = Game(song)
     #Return the album cover to be rendered on the user-side
 
-    #TODO: Add code that blurs album cover and handles blurring/unblurring logic on the backend
     return jsonify({"album_cover":f"{song.get_album_image()}"})
 
 
 
 
 @app.route('/make-guess', methods=['POST'])
+@cross_origin()
 def make_guess():
+    global game
+    
     if not game:
         return jsonify({"error": "Game not started"}), 400
 
-    guess = request.get_json().get("guess") # Get the user's guess from the request body
+    # Get the guess from the request
+    data = request.get_json()
+    if not data or 'guess' not in data:
+        return jsonify({"error": "No guess provided"}), 400
 
-    game_result = game.process_guess(guess) #process the guess in the game object and retrieve the hint 
+    guess = data['guess']
     
-    if game_result == "unblur":
-        return jsonify({"action": game_result})
-    elif game_result == "Game Over":
-        return jsonify({"result" : game_result})
-    elif game_result[0] == "U":
-        return jsonify({"result": game_result})
-    else:
-        return jsonify({"hint": game_result})
+    # Process the guess and get the response
+    response = game.process_guess(guess)
+    
+    # If the game is over (can check from the response)
+    if response['gameState']['isGameOver']:
+        game = None  # Reset the game
+    
+    return jsonify(response)
 
 
 if __name__ == '__main__':

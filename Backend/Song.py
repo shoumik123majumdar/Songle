@@ -87,7 +87,7 @@ class Song:
         - self.snippet: shortened 1.5 second audio snippet
     """
     def get_snippet(self):
-        return self.snippet()
+        return self.snippet
 
     """
     HELPER FUNCTION

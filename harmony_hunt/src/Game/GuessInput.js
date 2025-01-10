@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './GuessInput.css'
 
-function GuessInput({ handleGuess, guessRef}) {
+function GuessInput({ handleGuess, guessRef, isDisabled}) {
   const [inputError, setInputError] = useState('');
   const MAX_LENGTH = 50;
+  const [placeholder, setPlaceHolder] = useState('Enter Guess...')
 
   const handleKeyDown = (event) => {
       // Clear error when user starts typing
@@ -14,11 +15,11 @@ function GuessInput({ handleGuess, guessRef}) {
           
           // Input validation
           if (guess.length === 0) {
-              setInputError('Please enter a guess');
+              setPlaceHolder('Please enter a guess');
               return;
           }
           if (guess.length > MAX_LENGTH) {
-              setInputError(`Guess must be ${MAX_LENGTH} characters or less`);
+              setPlaceHolder(`Guess must be ${MAX_LENGTH} characters or less`);
               return;
           }
 
@@ -42,11 +43,11 @@ function GuessInput({ handleGuess, guessRef}) {
               onInput={handleInput}
               type="text" 
               className="spotify-input"
-              placeholder="Enter Guess..."
+              placeholder= {placeholder}
               disabled={isDisabled}
               maxLength={MAX_LENGTH}
           />
-          {inputError && <div className="input-error">{inputError}</div>}
       </div>
   );
 }
+export default GuessInput;
