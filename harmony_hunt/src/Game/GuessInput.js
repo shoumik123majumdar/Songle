@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import './GuessInput.css'
 
 function GuessInput({ handleGuess, guessRef, isDisabled}) {
-  const [inputError, setInputError] = useState('');
   const MAX_LENGTH = 50;
   const [placeholder, setPlaceHolder] = useState('Enter Guess...')
+  // This effect runs whenever isDisabled changes
+  useEffect(() => {setPlaceHolder(isDisabled ? 'Game Over' : 'Enter Guess...');}, [isDisabled]);
 
   const handleKeyDown = (event) => {
-      // Clear error when user starts typing
-      setInputError('');
-
       if (event.key === 'Enter') {
           const guess = guessRef.current.value.trim();
           
@@ -29,10 +27,11 @@ function GuessInput({ handleGuess, guessRef, isDisabled}) {
 
   const handleInput = (event) => {
       if (event.target.value.length > MAX_LENGTH) {
-          setInputError(`Maximum ${MAX_LENGTH} characters allowed`);
-      } else {
-          setInputError('');
-      }
+          setPlaceHolder(`Maximum ${MAX_LENGTH} characters allowed`) }
+     else {
+        event.target.value = event.target.value.slice(0, MAX_LENGTH);
+        setPlaceHolder('Enter Guess...')
+     }     
   };
 
   return (

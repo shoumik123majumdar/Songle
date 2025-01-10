@@ -76,12 +76,13 @@ function Game() {
       } catch (error) {
           console.error('Error fetching guess from server', error);
       }
+      // ERROR BELOW WITH HOW CODE IS RENDERING ALBUM_COVER IN THE BEGGINING USING THE URL
   }
 
     return (
   
         <div className="container">
-          <AlbumImage image_url = {albumURL} isBlurred = {isBlurred} />
+          <AlbumImage image_url = {albumURL} isBlurred = {isBlurred} /> 
           <div id="guess-box">
             <GuessInput 
                 guessRef = {guessRef} 
