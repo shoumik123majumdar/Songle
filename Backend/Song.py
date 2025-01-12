@@ -9,7 +9,8 @@ class Song:
 
     def __init__(self,track_info):
         self.track_name =  track_info['track_name']
-        self.release_date = track_info['release_date']
+        print(track_info['release_date'])
+        self.release_date = self._format_release_date(track_info['release_date'])
         self.artist_name = track_info['artist_name']
         self.album_name = track_info['album_name']
         self.album_image_url = track_info['album_image_url']
@@ -26,6 +27,23 @@ class Song:
     def get_track_name(self):
         return self.track_name
 
+    def _format_release_date(self, date_str):
+        """
+        Formats the release date string from Spotify's YYYY-MM-DD format to MM-DD-YYYY format
+        Inputs:
+            - date_str: date string in Spotify format (YYYY-MM-DD)
+        Outputs:
+            - formatted date string in MM-DD-YYYY format
+        """
+        try:
+            year = date_str[0:4]
+            month = date_str[5:7]
+            day = date_str[8:10]
+            return f"{month}-{day}-{year}"
+        except Exception:
+            # Fallback to original string if any error occurs
+            return date_str
+        
     """
     Gets the release date of the song
     Inputs: N/A
@@ -33,6 +51,7 @@ class Song:
         - self.release_date: release date of the song
     """
     def get_release_date(self):
+        print(self.release_date)
         return self.release_date
 
     """

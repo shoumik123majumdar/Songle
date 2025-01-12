@@ -56,7 +56,6 @@ function Game() {
               setArtist(data.hints.artist);
           }
           if (data.hints.audio_snippet) {
-            console.log('Audio Snippet should be displayed' + data.hints.audio_snippet)
               setAudioSnippet(data.hints.audio_snippet);
           }
           if (data.hints.album_cover_status === "unblur") {
