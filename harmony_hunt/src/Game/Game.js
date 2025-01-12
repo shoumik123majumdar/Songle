@@ -7,7 +7,7 @@ import Genre from './Hints/Genre'
 import ReleaseDate from './Hints/ReleaseDate';
 import Artist from './Hints/Artist';
 import AudioPlayer from './Hints/AudioPlayer';
-import GameOver from './GameOver';
+import GameOverMessage from './GameOverMessage';
 import  './game_styles.css'
 
 function Game() {
@@ -103,7 +103,7 @@ function Game() {
           
           {gameOverMessage && (
             <>
-            <GameOver className="hint" />
+            <GameOverMessage message = {gameOverMessage} className="hint" />
             {audioClip && <audio src={audioClip} autoPlay></audio>}
             </>
             )}
