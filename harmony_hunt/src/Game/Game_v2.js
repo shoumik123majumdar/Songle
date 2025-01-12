@@ -55,7 +55,8 @@ function Game() {
           if (data.hints.artist) {
               setArtist(data.hints.artist);
           }
-          if (data.hints.audio) {
+          if (data.hints.audio_snippet) {
+            console.log('Audio Snippet should be displayed' + data.hints.audio_snippet)
               setAudioSnippet(data.hints.audio_snippet);
           }
           if (data.hints.album_cover_status === "unblur") {
@@ -63,6 +64,7 @@ function Game() {
           }
   
           // Handle game over states
+          //Game Over is not being conditonally rendered right now
           if (data.gameState.isGameOver) {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)
@@ -71,6 +73,7 @@ function Game() {
                   
               } else {
                   setGameOverMessage(`Game Over! The correct song was: ${data.gameState.correctSong}`);
+                  //ADD MORE TO THIS COMPONENT, LIKE A LINK TO LISTEN TO THE FULL SONG
               }
           }
   
@@ -97,7 +100,7 @@ function Game() {
           {genre && <Genre song_genre={genre} className = "hint"/>}
           {releaseDate && <ReleaseDate song_date={releaseDate} className = "hint"/>}
           {artist && <Artist song_artist={artist} className = "hint"/>}
-          {audioSnippet && <AudioPlayer audio_url={audioSnippet} className = "button"/>}
+          {audioSnippet && <AudioPlayer base64Audio={audioSnippet} className = "button"/>}
           
           {gameOverMessage && (
             <>
