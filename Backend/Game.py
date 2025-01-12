@@ -25,13 +25,15 @@ class Game:
             "full_audio_clip":self.target_song_info.get_clip()
         }
 
+   
+    
     def process_guess(self, guess):
         """
         Process the user's guess and return appropriate game state and hints
         """
         self.guess_count += 1
         is_game_over, result = self._is_game_over(guess)
-        
+    
         # Update revealed hints based on guess count
         if self.guess_count > 0:
             self.revealed_hints["genre"] = self.target_song_info.get_genre()
@@ -44,25 +46,23 @@ class Game:
         if self.guess_count > 4:
             self.revealed_hints["album_cover_status"] = "unblur"
 
-        response = {
-            "gameState": {
-                "guessCount": self.guess_count,
-                "isGameOver": is_game_over,
-                "wonGame": False,
-                "correctSong": self.target_song_info.track_name
-            },
-            "hints": self.revealed_hints
-        }
-
+        # If game is over, update all hints in the game object
         if is_game_over:
-            if "Won" in result:  # User won
-                response["gameState"]["wonGame"] = True
-                response["hints"] = self._get_all_hints()  # Reveal all hints
-            else:  # User lost
-                response["gameState"]["wonGame"] = False
-                response["hints"] = self._get_all_hints()  # Reveal all hints
-        
+            self.revealed_hints = self._get_all_hints()
+
+        # Create response using the updated game state
+        response = {
+        "gameState": {
+            "guessCount": self.guess_count,
+            "isGameOver": is_game_over,
+            "wonGame": "Won" in result if is_game_over else False,
+            "correctSong": self.target_song_info.track_name
+        },
+        "hints": self.revealed_hints  # Now using the updated game state
+        }
+    
         return response
+    
 
     def _is_game_over(self,guess):
         """

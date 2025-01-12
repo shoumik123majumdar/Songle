@@ -8,6 +8,7 @@ import ReleaseDate from './Hints/ReleaseDate';
 import Artist from './Hints/Artist';
 import AudioPlayer from './Hints/AudioPlayer';
 import GameOver from './GameOver';
+import  './game_styles.css'
 
 function Game() {
     const location = useLocation();
@@ -41,8 +42,9 @@ function Game() {
   
           const data = await response.json();
           console.log('Received response:', data);
-            console.log('Hints:', data.hints);
-            console.log('Game State:', data.gameState);
+          console.log('Hints:', data.hints);
+          console.log('Game State:', data.gameState);
+
             
           if (data.hints.genre) {
               setGenre(data.hints.genre);
@@ -56,7 +58,7 @@ function Game() {
           if (data.hints.audio) {
               setAudioSnippet(data.hints.audio_snippet);
           }
-          if (data.hints.album_cover_status) {
+          if (data.hints.album_cover_status === "unblur") {
               setIsBlurred(false);
           }
   
@@ -82,7 +84,9 @@ function Game() {
     return (
   
         <div className="container">
+
           <AlbumImage image_url = {albumURL} isBlurred = {isBlurred} /> 
+
           <div id="guess-box">
             <GuessInput 
                 guessRef = {guessRef} 
@@ -90,12 +94,19 @@ function Game() {
                 isDisabled={isDisabled} 
             />
           </div>
-          {genre && <Genre song_genre={genre}/>}
-          {releaseDate && <ReleaseDate song_date={releaseDate}/>}
-          {artist && <Artist song_artist={artist}/>}
-          {audioSnippet && <AudioPlayer audio_url={audioSnippet}/>}
-          {gameOverMessage && <GameOver />}
-          {gameOverMessage  && audioClip && <audio src={audioClip} autoPlay></audio>}
+
+          {genre && <Genre song_genre={genre} className = "hint"/>}
+          {releaseDate && <ReleaseDate song_date={releaseDate} className = "hint"/>}
+          {artist && <Artist song_artist={artist} className = "hint"/>}
+          {audioSnippet && <AudioPlayer audio_url={audioSnippet} className = "button"/>}
+          
+          {gameOverMessage && (
+            <>
+            <GameOver className="hint" />
+            {audioClip && <audio src={audioClip} autoPlay></audio>}
+            </>
+            )}
+            
         </div>
         
         

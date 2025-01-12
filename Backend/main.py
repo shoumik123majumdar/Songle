@@ -9,6 +9,7 @@ from Song import Song
 from Game import Game
 import requests
 
+#TODO: Make sure you solve how the backend will handle a user refreshing the page. 
 
 app = Flask(__name__)
 CORS(app, resources={

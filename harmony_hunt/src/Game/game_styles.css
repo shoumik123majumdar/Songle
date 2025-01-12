@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'PlaylistFont';
+  font-weight: normal;
+  font-style: normal;
+  src: url('./circular-std-medium-500.ttf') format('truetype');
+}
 body {
     height: 98vh;
     background-color: #191414;
