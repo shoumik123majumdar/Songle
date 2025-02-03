@@ -4,11 +4,6 @@
   src: url('../Fonts/circular-std-medium-500.ttf') format('truetype');
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 body {
   min-height: 100vh;
@@ -23,10 +18,11 @@ body {
 /* Main game container */
 .game-container {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr; /* Middle section larger */
+  grid-template-columns: 1.2fr 1.7fr 1.2fr;
   min-height: 100vh;
   width: 100%;
-  padding: 2rem;
+  padding: 50px 0; /* Adds 50px of padding to the top and bottom of the container */
+  gap: 2rem; /* Adds equal spacing between columns */
 }
 
 /* Left column - Guesses */
@@ -34,9 +30,10 @@ body {
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  min-height: calc(100vh - 4rem);
+  min-height: calc(100vh - 100px);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   overflow-y: auto;
+  
 }
 
 .guesses-section h2 {
@@ -78,7 +75,8 @@ body {
   justify-content: flex-start; /* Changed from space-between */
   padding: 2rem;
   gap: 3rem;
-  min-height: calc(100vh - 4rem);
+  min-height: calc(100vh - 6rem); /* Reduced height by 6rem (3rem top and bottom padding) */
+
 }
 
 /* Album and input group */
@@ -121,10 +119,10 @@ body {
 .hints-section {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 50px 2rem;
   padding-top: 25rem;
-  min-height: calc(100vh - 4rem);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
+  height: calc(100vh - 100px); /* Adjusted height (50px top and bottom padding) */
   gap: 4rem;  /* Preserves spacing between hints */
 }
 
