@@ -248,7 +248,7 @@ class Spotipy:
         artist_id = track['artists'][0]['id']
         artist_info = self.sp.artist(artist_id)
         track_info['genre'] = artist_info['genres']
-
+        track_info['spotify_link'] = track['external_urls']['spotify']
         return track_info
 
 

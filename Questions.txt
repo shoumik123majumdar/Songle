@@ -1,0 +1,10 @@
+I also was wondering, I have my React code locally as well as my flask backend code. What additional steps would I need to take to take my code to production and for it to work anywhere on the web?
+Explain web architecture in a way where I can understand how everything connects together to get a MVP out. 
+Free places to host my website (is there a way to host my backend for free as well?), also setting up measures to make sure I am not charged for the API.
+Let's say I want to start allowing users to sign up for an account on my website/handly my own authentication in the future, (AFTER THE MVP), how would I integrate a database.
+Would a typical SQL database be better? Or a NoSQL database? 
+I also want this database to store some user information regarding game data from previous games, this game data can be used to ensure different games are picked for each user everyday. 
+
+I also would like to know best ways to test my website before deploying on the web. Integration testing + unit testing. 
+(Is there ways to test hosting it online, but only allow requests from my backend to test?)
+Or is it better for me to write the code locally, unit test it, and then deploy the changes 

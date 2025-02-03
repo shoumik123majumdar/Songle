@@ -1,11 +1,24 @@
 .blurred {
-    filter: blur(60px); /* Adjust the blur value as needed */
-  }
-  
+  filter: blur(60px);
+  pointer-events: none;  /* Prevent interaction */
+  user-select: none;     /* Prevent selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 img {
-    transition: filter 0.5s ease; /* Animation effect for the blur */
-    width: 500px;
-    height:auto;
-    margin-top: 100px;
-    margin-bottom:100px;
-  }
+  /* Remove transition to prevent any animation that might be manipulated */
+  width: 500px;
+  height: auto;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  pointer-events: none;  /* Prevent all pointer interactions */
+  user-drag: none;      /* Prevent dragging */
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;    /* Prevent selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

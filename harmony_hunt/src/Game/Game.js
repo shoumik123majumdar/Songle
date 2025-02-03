@@ -62,8 +62,7 @@ function Game() {
               setIsBlurred(false);
           }
   
-          // Handle game over states
-          //Game Over is not being conditonally rendered right now
+          
           if (data.gameState.isGameOver) {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)

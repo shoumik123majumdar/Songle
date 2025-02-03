@@ -4,6 +4,7 @@ class Game:
     def __init__(self, song_info):
         self.target_song_info = song_info
         self.guess_count = 0
+        print(self.target_song_info.track_name)
         # Track revealed hints
         self.revealed_hints = {
             "genre": None,
@@ -15,12 +16,17 @@ class Game:
         }
 
     def _get_all_hints(self):
+        #Makes sure audio clip button is not conditionally rendered if the user guesses the song correctly before the button could be generated.
+        if self.guess_count <3:
+            audio_snippet = None
+        else:
+            audio_snippet = self.target_song_info.get_snippet()
         """Helper method to get all hints"""
         return {
             "genre": self.target_song_info.get_genre(),
             "release_date": self.target_song_info.get_release_date(),
             "artist": self.target_song_info.get_artist_name(),
-            "audio_snippet": self.target_song_info.get_snippet(),
+            "audio_snippet": audio_snippet,
             "album_cover_status": "unblur",
             "full_audio_clip":self.target_song_info.get_clip()
         }
@@ -49,7 +55,6 @@ class Game:
         # If game is over, update all hints in the game object
         if is_game_over:
             self.revealed_hints = self._get_all_hints()
-
         # Create response using the updated game state
         response = {
         "gameState": {

@@ -9,7 +9,6 @@ class Song:
 
     def __init__(self,track_info):
         self.track_name =  track_info['track_name']
-        print(track_info['release_date'])
         self.release_date = self._format_release_date(track_info['release_date'])
         self.artist_name = track_info['artist_name']
         self.album_name = track_info['album_name']
@@ -17,6 +16,7 @@ class Song:
         self.genre = track_info['genre']
         self.clip = track_info['clip']
         self.snippet = self._shorten_audio_url(self.clip)
+        self.spotify_link = track_info['spotify_link']
 
     """
     Gets the song name
@@ -107,6 +107,14 @@ class Song:
     """
     def get_snippet(self):
         return self.snippet
+    
+    def get_spotify_link(self):
+        """
+        Gets the spotify link to the song
+        Params: N/A
+        Return: (str) spotify_link
+        """
+        return self.spotify_link
 
     """
     HELPER FUNCTION

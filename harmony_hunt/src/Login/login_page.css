@@ -1,0 +1,98 @@
+/* Base styles remain the same */
+@font-face {
+  font-family: 'PlaylistFont';
+  src: url('../Fonts/circular-std-medium-500.ttf') format('truetype');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main container */
+.App {
+  min-height: 100vh;
+  background-color: #191414;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Content wrapper */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;  /* Space between title area and login button */
+}
+
+/* Title area container */
+.title-area {
+  display: flex;
+  align-items: center;
+  gap: 2rem;  /* Space between logo and text */
+}
+
+/* Logo styling */
+.App-logo {
+  height: 100px;  /* Adjust size as needed */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Header section */
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Main title */
+.App-header h1:first-child {
+  font-family: 'PlaylistFont', sans-serif;
+  font-size: 5rem;  /* Larger size for Songle */
+  font-weight: bold;
+  color: #1DB954;
+}
+
+/* Tagline */
+.App-header h1:nth-child(2) {
+  font-family: 'PlaylistFont', sans-serif;
+  font-size: 1.5rem;
+  color: white;
+}
+
+/* Button styling */
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  /* Styles for tablets and smaller */
+  .title-area {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  .App-header h1:first-child {
+      font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Styles for phones */
+  .App-header h1:first-child {
+      font-size: 2.5rem;
+  }
+}

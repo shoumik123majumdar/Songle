@@ -8,9 +8,10 @@ from flask_cors import cross_origin
 from Song import Song
 from Game import Game
 import requests
+from dotenv import load_dotenv
 
 #TODO: Make sure you solve how the backend will handle a user refreshing the page. 
-
+load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {
