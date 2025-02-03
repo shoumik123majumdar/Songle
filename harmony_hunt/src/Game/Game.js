@@ -21,7 +21,7 @@ function Game() {
     const [audioSnippet,setAudioSnippet] = useState(null);
     const [audioClip, setAudioClip] = useState(null);
     const [gameOverMessage, setGameOverMessage] = useState(null);
-
+    const [guesses, setGuesses] = useState([]);
 
     const guessRef = useRef(null)
 
@@ -45,7 +45,7 @@ function Game() {
           console.log('Hints:', data.hints);
           console.log('Game State:', data.gameState);
 
-            
+          
           if (data.hints.genre) {
               setGenre(data.hints.genre);
           }
@@ -62,7 +62,7 @@ function Game() {
               setIsBlurred(false);
           }
   
-          
+          setGuesses(prev => [...prev, userGuess])
           if (data.gameState.isGameOver) {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)
@@ -83,34 +83,46 @@ function Game() {
 
     return (
   
-        <div className="container">
-
-          <AlbumImage image_url = {albumURL} isBlurred = {isBlurred} /> 
-
-          <div id="guess-box">
-            <GuessInput 
-                guessRef = {guessRef} 
-                handleGuess = {handleGuess}
-                isDisabled={isDisabled} 
-            />
-          </div>
-
-          {genre && <Genre song_genre={genre} className = "hint"/>}
-          {releaseDate && <ReleaseDate song_date={releaseDate} className = "hint"/>}
-          {artist && <Artist song_artist={artist} className = "hint"/>}
-          {audioSnippet && <AudioPlayer base64Audio={audioSnippet} className = "button"/>}
-          
-          {gameOverMessage && (
-            <>
-            <GameOverMessage message = {gameOverMessage} className="hint" />
-            {audioClip && <audio src={audioClip} autoPlay></audio>}
-            </>
-            )}
-            
+        <div className="game-container">
+        {/* Left Column - Guesses */}
+        <div className="guesses-section">
+            <h2>Guesses</h2>
+            <ul className="guess-list">
+                {guesses.map((guess, index) => (
+                    <li key={index} className="guess-item">
+                        {index + 1}. {guess}
+                    </li>
+                ))}
+            </ul>
         </div>
-        
-        
-      );
+
+        {/* Middle Column - Album and Input */}
+        <div className="middle-section">
+            <AlbumImage image_url={albumURL} isBlurred={isBlurred} />
+            <div id="guess-box">
+                <GuessInput
+                    guessRef={guessRef}
+                    handleGuess={handleGuess}
+                    isDisabled={isDisabled}
+                />
+            </div>
+            {gameOverMessage && (
+                <>
+                    <GameOverMessage message={gameOverMessage} className="hint" />
+                    {audioClip && <audio src={audioClip} autoPlay></audio>}
+                </>
+            )}
+        </div>
+
+        {/* Right Column - Hints */}
+        <div className="hints-section">
+            {genre && <Genre song_genre={genre} />}
+            {releaseDate && <ReleaseDate song_date={releaseDate} />}
+            {artist && <Artist song_artist={artist} />}
+            {audioSnippet && <AudioPlayer base64Audio={audioSnippet} />}
+        </div>
+    </div>  
+);
   
 }
 export default Game;

@@ -12,7 +12,7 @@ function AudioPlayer({ base64Audio}) {
       audio.onended = () => {
         // Once playback ends, change state back
         setIsPlaying(false);
-        setCanPlay(false);
+        setCanPlay(false); //Deletes Button from existence (probably de-renders due to something in the css as well)
       };
     }
   }

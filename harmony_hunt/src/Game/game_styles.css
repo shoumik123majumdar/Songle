@@ -1,64 +1,283 @@
+/* Base styles and font */
 @font-face {
   font-family: 'PlaylistFont';
   src: url('../Fonts/circular-std-medium-500.ttf') format('truetype');
 }
-body {
-    height: 98vh;
-    background-color: #191414;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-​
-p {
-    font-family: 'PlaylistFont',sans-serif;
-}
-.container{
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-}
-.hint{
-    font-family: 'PlaylistFont','Franklin Gothic Medium';
-    font-size:60px;
-    color: #1DB954;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  min-height: 100vh;
+  background-color: #191414;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  font-family: 'PlaylistFont', sans-serif;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* Main game container */
+.game-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr; /* Middle section larger */
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Left column - Guesses */
+.guesses-section {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  min-height: calc(100vh - 4rem);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+}
+
+.guesses-section h2 {
+  color: #1DB954;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  background-color: #191414;
+  padding: 1rem 0;
+  padding-top:16rem;
+}
+
+.guess-list {
+  list-style: none;
+  padding: 0;
+  flex-grow: 1;
+}
+
+.guess-item {
+  font-size: 1.8rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.guess-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Middle column - Album and Input */
+.middle-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Changed from space-between */
+  padding: 2rem;
+  gap: 3rem;
+  min-height: calc(100vh - 4rem);
+}
+
+/* Album and input group */
+.album-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Input box adjustments */
+#guess-box {
+  width: 100%;
+  max-width: 700px; /* Increased width */
+  margin: 1rem 0;
+}
+
+.spotify-input {
+  width: 100%;
+  font-size: 1.5rem; /* Bigger input text */
+  padding: 1rem 1.5rem;
+}
+
+/* Guess item text truncation */
+.guess-item {
+  font-size: 1.8rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Right column - Hints */
+.hints-section {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  padding-top: 25rem;
+  min-height: calc(100vh - 4rem);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 4rem;  /* Preserves spacing between hints */
+}
+
+/* Container for all hints */
+.hint-container {
+  width: 100%;
+  padding: 0 1rem;
+}
+
+/* Base hint styling (used by all hints) */
+.hint {
+  font-family: 'PlaylistFont', 'Franklin Gothic Medium';
+  font-size: 2rem;
+  color: #1DB954;
+  padding: 1.5rem 2rem;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 8px;
+  display: block;
+  width: 100%;
+}
+
+/* Specific genre hint styling */
+.genre-hint {
+  white-space: pre-wrap;      /* Preserves spaces and allows wrapping */
+  word-break: break-word;     /* Breaks words only when necessary */
+  line-height: 1.4;           /* Proper spacing between wrapped lines */
+}
+
+
+
+
+/* Audio player button */
 .button {
-    background-color: #1DB954; /* Green background */
-    border: none; /* No border */
-    margin: 4px 2px; /* Some margin */
-    cursor: pointer; /* Pointer cursor on hover */
-    border-radius: 50%; /* Rounded shape */
-    width: 80px; /* Fixed width */
-    height: 80px; /* Fixed height */
-    position: relative; /* Set relative positioning for the parent */
-  }
-  
+  background-color: #1DB954;
+  border: none;
+  margin: 2rem auto; /* Centers button in column */
+  cursor: pointer;
+  border-radius: 50%;
+  width: 100px;  /* Increased size */
+  height: 100px; /* Increased size */
+  position: relative;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  display: block;  /* Helps with centering */
+}
+
 .button:hover {
-    background-color: #1DF069; /* Slightly darker green on hover */
-    /* Add any desired hover effects */
-  }
-  
-/* Icon */
+  background-color: #1ED760;
+  transform: scale(1.05);
+}
+
+/* Play button icon */
 .button::after {
-    font-size: 35px; /* Large icon size for play symbol */
-    color: black; /* Icon color */
-    position: absolute;
-    top: calc(50%);
-    left: calc(50% + 2px);
-    transform: translate(-50%, -50%);
-    content: '\25BA'; /* Unicode for right-pointing triangle */
-  }
-  
+  content: '\25BA';  /* Unicode for ▶ */
+  font-size: 50px;  /* Increased size */
+  color: black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%);  /* Manually adjusted */
+}
+
+/* Pause button icon */
 .button.clicked::after {
-    content: '\2590\2590'; /* Unicode for the pause icon */
-    font-size: 20px; /* Adjust the font size as needed */
-    line-height: 1; /* Setting line height to 1 to eliminate extra space */
-    color: black; /* Icon color */
-    background: transparent; /* Ensure no background is applied */
-    border: none; /* Ensure no border is applied */
-    position: absolute;
-    top: 50%;
-    left: calc(50% - 4px);
-    transform: translate(-50%, -50%); /* Center the icon */
+  content: '\2590\2590';  /* Unicode for ⏸ */
+  font-size: 30px;  /* Adjusted for better size */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-63%, -50%); /* Manual centering */
+}
+
+
+
+/* Input box spacing */
+#guess-box {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem 0;
+}
+
+/* Game over message */
+.game-over {
+  text-align: center;
+  padding: 2rem;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 8px;
+  margin: 2rem 0;
+  width: 100%;
+  font-size: 2rem;
+  color: #1DB954;
+}
+
+
+/* Responsive design */
+@media (max-width: 1400px) {
+  .game-container {
+      grid-template-columns: 1fr 2fr 1fr;
   }
+
+  .hint {
+      font-size: 1.8rem;
+  }
+
+  .guess-item {
+      font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .game-container {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+  }
+
+  .guesses-section,
+  .hints-section {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: auto;
+  }
+
+  .middle-section {
+      order: -1;
+      min-height: auto;
+  }
+
+  .album-cover {
+      max-width: 500px;
+  }
+
+  .hint {
+      font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-container {
+      padding: 1rem;
+  }
+
+  .hint {
+      font-size: 1.2rem;
+  }
+
+  .album-cover {
+      max-width: 350px;
+  }
+
+  .guess-item {
+      font-size: 1.2rem;
+  }
+
+  .game-over {
+      font-size: 1.5rem;
+  }
+}
