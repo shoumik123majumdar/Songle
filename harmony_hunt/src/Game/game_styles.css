@@ -186,7 +186,6 @@ body {
 .button {
   background-color: #1DB954;
   border: none;
-  margin: 2rem auto; /* Centers button in column */
   cursor: pointer;
   border-radius: 50%;
   width: 100px;  /* Increased size */
@@ -237,7 +236,6 @@ body {
 /* Game over container and base styles */
 .game-over-container {
   width: 100%;
-  margin: 1rem 0;
 }
 
 /* Base styles for both won and lost states */
