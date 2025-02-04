@@ -23,6 +23,7 @@ function Game() {
     const [gameOverMessage, setGameOverMessage] = useState(null);
     const [guesses, setGuesses] = useState([]);
     const [gameOver,setGameOver] = useState(null);
+    const [spotifyLink,setSpotifyLink] = useState(null);
     const guessRef = useRef(null)
 
 
@@ -67,14 +68,22 @@ function Game() {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)
               setGameOver(true)
-              //WHY DOESN"T THIS WORK
+              setSpotifyLink(data.hints.spotify_link)
               if (data.gameState.wonGame) {
-                  setGameOverMessage(`Congratulations! You won in ${data.gameState.guessCount} guesses!`);
-                  
-              } else {
-                  setGameOverMessage(`Game Over! The correct song was: ${data.gameState.correctSong}`);
-                  //ADD MORE TO THIS COMPONENT, LIKE A LINK TO LISTEN TO THE FULL SONG
-              }
+                setGameOverMessage({
+                    prefix: `Congratulations! You guessed `,
+                    suffix: ` in ${data.gameState.guessCount} guesses!`,
+                    songName: data.gameState.correctSong,
+                    spotifyLink: data.hints.spotify_link
+                });
+            } else {
+                setGameOverMessage({
+                    prefix: `Game Over! The correct song was: `,
+                    suffix: ``,
+                    songName: data.gameState.correctSong,
+                    spotifyLink: data.hints.spotify_link
+                });
+            }
           }
   
           guessRef.current.value = '';
@@ -88,10 +97,12 @@ function Game() {
         <div className="game-container">
         {/* Left Column - Guesses */}
         <div className="guesses-section">
-            <h2>Guesses</h2>
             <ul className="guess-list">
                 {guesses.map((guess, index) => (
-                    <li key={index} className="guess-item">
+                    <li 
+                    key={index} 
+                    className={`guess-item ${!gameOverMessage || index < guesses.length - 1 ? 'wrong' : ''}`}
+                >
                         {index + 1}. {guess}
                     </li>
                 ))}
@@ -130,7 +141,7 @@ function Game() {
             </div>
 
             {gameOverMessage && (
-                <GameOverMessage message={gameOverMessage} className="hint" />
+                <GameOverMessage message={gameOverMessage} spotifyLink = {spotifyLink} className="hint" />
             )}
         </div>
 

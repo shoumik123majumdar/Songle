@@ -12,7 +12,8 @@ class Game:
             "artist": None,
             "audio_snippet": None,
             "album_cover_status": "blurred",
-            "full_audio_clip": None
+            "full_audio_clip": None,
+            "spotify_link": None
         }
 
     def _get_all_hints(self):
@@ -24,7 +25,8 @@ class Game:
             "artist": self.target_song_info.get_artist_name(),
             "audio_snippet": self.target_song_info.get_snippet(),
             "album_cover_status": "unblur",
-            "full_audio_clip":self.target_song_info.get_clip()
+            "full_audio_clip":self.target_song_info.get_clip(),
+            "spotify_link": self.target_song_info.get_spotify_link()
         }
 
    
