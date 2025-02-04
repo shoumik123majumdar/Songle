@@ -79,8 +79,7 @@ function Game() {
                 });
             } else {
                 setGameOverMessage({
-                    prefix: `Game Over! The correct song was: `,
-                    suffix: ``,
+                    prefix: `The correct song was: `,
                     songName: data.gameState.correctSong,
                     spotifyLink: data.hints.spotify_link
                 });
