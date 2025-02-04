@@ -13,9 +13,9 @@ import  './game_styles.css'
 function Game() {
     const location = useLocation();
     const albumURL = location.state?.albumURL;
-    const [isBlurred, setIsBlurred] = useState(true);
-    const [isDisabled, setIsDisabled] = useState(false);
-    const [genre,setGenre] = useState(null);
+    const [isBlurred, setIsBlurred] = useState(true); // Stores state of album cover's blurredness
+    const [isDisabled, setIsDisabled] = useState(false); // Stores state of guess input's ability to be used
+    const [genre,setGenre] = useState(null); 
     const [releaseDate,setReleaseDate] = useState(null);
     const [artist,setArtist] = useState(null);
     const [audioSnippet,setAudioSnippet] = useState(null);
@@ -24,6 +24,7 @@ function Game() {
     const [guesses, setGuesses] = useState([]);
     const [gameOver,setGameOver] = useState(null);
     const [spotifyLink,setSpotifyLink] = useState(null);
+    const [gameIsWon,setGameIsWon] = useState(null);
     const guessRef = useRef(null)
 
 
@@ -70,9 +71,9 @@ function Game() {
               setGameOver(true)
               setSpotifyLink(data.hints.spotify_link)
               if (data.gameState.wonGame) {
+                setGameIsWon(true)
                 setGameOverMessage({
                     prefix: `Congratulations! You guessed `,
-                    suffix: ` in ${data.gameState.guessCount} guesses!`,
                     songName: data.gameState.correctSong,
                     spotifyLink: data.hints.spotify_link
                 });
@@ -95,19 +96,22 @@ function Game() {
     return (
   
         <div className="game-container">
-        {/* Left Column - Guesses */}
-        <div className="guesses-section">
-            <ul className="guess-list">
-                {guesses.map((guess, index) => (
-                    <li 
-                    key={index} 
-                    className={`guess-item ${!gameOverMessage || index < guesses.length - 1 ? 'wrong' : ''}`}
-                >
-                        {index + 1}. {guess}
-                    </li>
-                ))}
-            </ul>
-        </div>
+            <div className="guesses-section">
+                <ul className="guess-list">
+                    {guesses.map((guess, index) => {
+                        const isLastGuess = index === guesses.length - 1;
+                        const shouldBeGreen = isLastGuess && gameIsWon;
+                        return (
+                            <li 
+                                key={index} 
+                                className={`guess-item ${shouldBeGreen ? 'correct' : 'wrong'}`}
+                            >
+                                {index + 1}. {guess}
+                            </li>
+                        );
+                    })}
+                </ul>
+            </div>
 
         {/* Middle Column - Album and Input */}
         <div className="middle-section">
@@ -141,7 +145,10 @@ function Game() {
             </div>
 
             {gameOverMessage && (
-                <GameOverMessage message={gameOverMessage} spotifyLink = {spotifyLink} className="hint" />
+                    <GameOverMessage 
+                            message={gameOverMessage}
+                            isWon={gameIsWon}
+                    />
             )}
         </div>
 

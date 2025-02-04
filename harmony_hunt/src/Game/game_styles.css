@@ -47,8 +47,9 @@ body {
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  min-height: calc(100vh - 100px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.05); /* More subtle border */
+  height: 90vh; /* Shorter than full height */
+  margin: auto 0; /* Centers vertically */
   overflow-y: auto;
   
 }
@@ -64,12 +65,11 @@ body {
   padding: 1rem 0;
   padding-top:16rem;
 }
-
 .guess-list {
   list-style: none;
   padding: 0;
   flex-grow: 1;
-  margin-top:19rem;
+  margin-top: 19rem; /* Reduced from 19rem */
 }
 
 .guess-item {
@@ -78,8 +78,28 @@ body {
   padding: 1rem;
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.05);
-  transition: background-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  animation: fadeIn 0.3s ease-out forwards;
 }
+
+/* Add this new class for correct guesses */
+.guess-item.correct {
+  animation: fadeIn 0.3s ease-out forwards;
+  background-color: rgba(29, 185, 84, 0.1); /* Same green as hints */
+  color: white;
+}
+
+/* Update the wrong class */
+.guess-item.wrong {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both,
+             fadeIn 0.3s ease-out forwards;
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
 
 .guess-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
@@ -119,34 +139,16 @@ body {
   padding: 1rem 1.5rem;
 }
 
-/* Guess item text truncation */
-.guess-item {
-  font-size: 1.8rem;
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.05);
-  transition: background-color 0.3s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.guess-item.wrong {
-  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  background-color: rgba(255, 59, 48, 0.1);
-}
-
 /* Right column - Hints */
 .hints-section {
   display: flex;
   flex-direction: column;
   padding: 50px 2rem;
   padding-top: 25rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  height: calc(100vh - 100px); /* Adjusted height (50px top and bottom padding) */
   gap: 4rem;  /* Preserves spacing between hints */
+  border-left: 1px solid rgba(255, 255, 255, 0.05); /* More subtle border */
+  height: 90vh; /* Matches guesses section */
+  margin: auto 0; /* Centers vertically */
 }
 
 /* Container for all hints */
@@ -232,31 +234,60 @@ body {
 }
 
 /* Game over message */
-.game-over {
-  text-align: center;
-  padding: 2rem;
-  background-color: rgba(29, 185, 84, 0.1);
-  border-radius: 8px;
-  margin: 2rem 0;
+/* Game over container and base styles */
+.game-over-container {
   width: 100%;
+  margin: 1rem 0;
+}
+
+/* Base styles for both won and lost states */
+.game-over-won,
+.game-over-lost {
+  font-family: 'PlaylistFont', 'Franklin Gothic Medium';
   font-size: 2rem;
-  color: #1DB954;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  width: 100%;
   opacity: 0;
   animation: fadeIn 0.8s ease-out forwards;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.spotify-text-link {
+/* Won state */
+.game-over-won {
   color: #1DB954;
+  background-color: rgba(29, 185, 84, 0.1);
+}
+
+/* Lost state */
+.game-over-lost {
+  color: rgb(255, 59, 48);
+  background-color: rgba(255, 59, 48, 0.1);
+}
+
+/* Spotify link styles */
+.spotify-link {
   text-decoration: underline;
   cursor: pointer;
-  transition: color 0.3s ease;
   font-weight: bold;
+  transition: color 0.3s ease;
 }
 
-.spotify-text-link:hover {
+.spotify-link.won {
+  color: #1DB954;
+}
+
+.spotify-link.won:hover {
   color: #1ed760;
 }
 
+.spotify-link.lost {
+  color: rgb(255, 59, 48);
+}
+
+.spotify-link.lost:hover {
+  color: rgb(255, 89, 78);
+}
 
 /* Responsive design */
 @media (max-width: 1400px) {
@@ -270,8 +301,6 @@ body {
 
   .guess-item {
       font-size: 1.5rem;
-      opacity: 0;
-      animation: fadeIn 0.3s ease-out forwards;
   }
 }
 

@@ -1,20 +1,19 @@
 import React from 'react'
 
-const GameOverMessage = ({message}) => {
+const GameOverMessage = ({message, isWon}) => {
     return (
         <div className="game-over-container">
-            <label className='hint'>
+            <div className={isWon ? 'game-over-won' : 'game-over-lost'}>
                 {message.prefix}
-                <a 
+                <a
                     href={message.spotifyLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="spotify-text-link"
+                    className={`spotify-link ${isWon ? 'won' : 'lost'}`}
                 >
                     {message.songName}
                 </a>
-                {message.suffix}
-            </label>
+            </div>
         </div>
     );
 }
