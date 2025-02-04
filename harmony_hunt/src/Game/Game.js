@@ -22,7 +22,7 @@ function Game() {
     const [audioClip, setAudioClip] = useState(null);
     const [gameOverMessage, setGameOverMessage] = useState(null);
     const [guesses, setGuesses] = useState([]);
-
+    const [gameOver,setGameOver] = useState(null);
     const guessRef = useRef(null)
 
 
@@ -66,6 +66,7 @@ function Game() {
           if (data.gameState.isGameOver) {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)
+              setisGameOver(true)
               if (data.gameState.wonGame) {
                   setGameOverMessage(`Congratulations! You won in ${data.gameState.guessCount} guesses!`);
                   
@@ -106,6 +107,7 @@ function Game() {
                     isDisabled={isDisabled}
                 />
             </div>
+            {audioSnippet && !gameOver && <AudioPlayer base64Audio={audioSnippet} />}
             {gameOverMessage && (
                 <>
                     <GameOverMessage message={gameOverMessage} className="hint" />
@@ -119,7 +121,6 @@ function Game() {
             {genre && <Genre song_genre={genre} />}
             {releaseDate && <ReleaseDate song_date={releaseDate} />}
             {artist && <Artist song_artist={artist} />}
-            {audioSnippet && <AudioPlayer base64Audio={audioSnippet} />}
         </div>
     </div>  
 );
