@@ -87,6 +87,22 @@ class Game:
         :param guess: the user's song guess we are validating
         :return: True if guess and target song match, False if not
         """
-        similarity_ratio = fuzz.ratio(guess.lower(), self.target_song_info.get_track_name().lower())
-
-        return similarity_ratio >= 90
+         # Clean up both strings
+        cleaned_guess = guess.lower().strip()
+        cleaned_target = self.target_song_info.get_track_name().lower().strip()
+    
+        # Direct equality check first
+        if cleaned_guess == cleaned_target:
+            print("Exact match found!")
+            return True
+        
+        # Fuzzy matching as backup
+        similarity_ratio = fuzz.ratio(cleaned_guess, cleaned_target)
+        print(f"Guess: '{cleaned_guess}'")
+        print(f"Target: '{cleaned_target}'")
+        print(f"Similarity: {similarity_ratio}")
+    
+        is_match = similarity_ratio >= 90
+        print(f"Is match: {is_match}")
+    
+        return is_match

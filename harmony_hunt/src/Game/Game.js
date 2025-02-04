@@ -66,7 +66,8 @@ function Game() {
           if (data.gameState.isGameOver) {
               setIsDisabled(true);
               setAudioClip(data.hints.full_audio_clip)
-              setisGameOver(true)
+              setGameOver(true)
+              //WHY DOESN"T THIS WORK
               if (data.gameState.wonGame) {
                   setGameOverMessage(`Congratulations! You won in ${data.gameState.guessCount} guesses!`);
                   
@@ -107,12 +108,29 @@ function Game() {
                     isDisabled={isDisabled}
                 />
             </div>
-            {audioSnippet && !gameOver && <AudioPlayer base64Audio={audioSnippet} />}
+            
+            <div className="audio-player-container">
+                {/* During game - snippet player */}
+                {audioSnippet && !gameOver && (
+                    <AudioPlayer 
+                        audioSource={audioSnippet}
+                        type="snippet"
+                        autoPlayOnMount={false}
+                    />
+                )}
+                
+                {/* After game over - full song player */}
+                {gameOver && audioClip && (
+                    <AudioPlayer 
+                        audioSource={audioClip}
+                        type="full"
+                        autoPlayOnMount={true}
+                    />
+                )}
+            </div>
+
             {gameOverMessage && (
-                <>
-                    <GameOverMessage message={gameOverMessage} className="hint" />
-                    {audioClip && <audio src={audioClip} autoPlay></audio>}
-                </>
+                <GameOverMessage message={gameOverMessage} className="hint" />
             )}
         </div>
 
