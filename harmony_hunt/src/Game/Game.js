@@ -9,6 +9,8 @@ import Artist from './Hints/Artist';
 import AudioPlayer from './Hints/AudioPlayer';
 import GameOverMessage from './GameOverMessage';
 import  './game_styles.css'
+import axios from 'axios';
+
 
 function Game() {
     const location = useLocation();
@@ -31,18 +33,14 @@ function Game() {
     async function handleGuess() {
       try {
           const userGuess = guessRef.current.value;
-          const response = await fetch('http://localhost:5000/make-guess', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ guess: userGuess })
-          });
+          const response = await axios.post('http://127.0.0.1:5000/make-guess', 
+          { guess: userGuess }
+             );
           console.log('Sending guess:', userGuess);
 
           
   
-          const data = await response.json();
+          const data = response.data;
           console.log('Received response:', data);
           console.log('Hints:', data.hints);
           console.log('Game State:', data.gameState);

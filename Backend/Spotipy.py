@@ -1,11 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import requests
-from io import BytesIO
-from pydub import AudioSegment
 import pandas
-import base64
-import random
 
 
 class Spotipy:
