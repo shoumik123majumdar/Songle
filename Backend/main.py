@@ -7,8 +7,10 @@ from flask_cors import CORS
 from flask_cors import cross_origin
 from Song import Song
 from Game import Game
-import requests
 from dotenv import load_dotenv
+import uuid
+import redis
+import pickle
 
 #TODO: Make sure you solve how the backend will handle a user refreshing the page. 
 load_dotenv()
@@ -20,12 +22,43 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
-game = None
+
+# Connect to Redis
+redis_client = redis.Redis(
+    host=os.environ.get('REDIS_HOST', 'localhost'),
+    port=int(os.environ.get('REDIS_PORT', 6379)),
+    db=int(os.environ.get('REDIS_DB', 0)),
+    decode_responses=False  # Keep binary data as-is for pickled objects
+)
+
 
 def clear_cache():
+    """
+    Clear cookie cache
+    """
     if os.path.exists("../.cache"):
         os.remove("../.cache")
 
+def save_game_to_redis(game_id, game_obj):
+    """Serialize and save game object to Redis with 24-hour expiration"""
+    try:
+        serialized_game = pickle.dumps(game_obj)
+        redis_client.setex(f"game:{game_id}", 86400, serialized_game)  # 24 hours expiration
+        return True
+    except Exception as e:
+        print(f"Error saving game to Redis: {e}")
+        return False
+    
+def load_game_from_redis(game_id):
+    """Load and deserialize game object from Redis"""
+    try:
+        serialized_game = redis_client.get(f"game:{game_id}")
+        if serialized_game:
+            return pickle.loads(serialized_game)
+        return None
+    except Exception as e:
+        print(f"Error loading game from Redis: {e}")
+        return None
 
 @app.route('/start-top-fifty-recents-game', methods=['POST'])
 @cross_origin()
@@ -57,11 +90,13 @@ def start_top_fifty_game():
         else: # if not, continue looping through the recently_played_track_id_list 
             recently_played_track_id_list.pop(song_index)
     
-    global game
-    game = Game(song)
-    #Return the album cover to be rendered on the user-side
+    game = Game(song) #Initialize game object
+    game_id = str(uuid.uuid4())
+    save_game_to_redis(game_id, game)
 
-    return jsonify({"album_cover":f"{song.get_album_image()}"})
+    response = game.get_current_state()
+    response["game_id"] = game_id
+    return jsonify(response)
 
 
 
@@ -69,27 +104,38 @@ def start_top_fifty_game():
 @app.route('/make-guess', methods=['POST'])
 @cross_origin()
 def make_guess():
-    global game
-    
-    if not game:
-        return jsonify({"error": "Game not started"}), 400
-
-    # Get the guess from the request
+    # Get game ID from request body
     data = request.get_json()
-    if not data or 'guess' not in data:
-        return jsonify({"error": "No guess provided"}), 400
-
+    
+    game_id = data['game_id']
     guess = data['guess']
     
-    # Process the guess and get the response
-    response = game.process_guess(guess)
+    # Load game from Redis
+    game = load_game_from_redis(game_id)
+    if not game:
+        return jsonify({"error": "Game not found or expired"}), 404
     
-    # If the game is over (can check from the response)
-    if response['gameState']['isGameOver']:
-        game = None  # Reset the game
+    response = game.process_guess(guess)
+
+    save_game_to_redis(game_id, game)
     
     return jsonify(response)
 
+@app.route('/get-game-state', methods=['GET'])
+@cross_origin()
+def get_game_state():
+    game_id = request.args.get('game_id')
+    if not game_id:
+        return jsonify({"error": "No game_id provided"}), 400
+    
+    game = load_game_from_redis(game_id)
+    if not game:
+        return jsonify({"error": "Game not found or expired"}), 404
+    
+    response = game.get_current_state()
+    response["game_id"] = game_id  # Add game_id to response
+    
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)

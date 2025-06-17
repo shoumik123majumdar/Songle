@@ -3,9 +3,9 @@ import './GuessInput.css'
 
 function GuessInput({ handleGuess, guessRef, isDisabled}) {
   const MAX_LENGTH = 50;
-  const [placeholder, setPlaceHolder] = useState('Enter Guess...')
+  const [placeholder, setPlaceHolder] = useState('Enter Song Guess...')
   // This effect runs whenever isDisabled changes
-  useEffect(() => {setPlaceHolder(isDisabled ? 'Game Over' : 'Enter Guess...');}, [isDisabled]);
+  useEffect(() => {setPlaceHolder(isDisabled ? 'Game Over' : 'Enter Song Guess...');}, [isDisabled]);
 
   const handleKeyDown = (event) => {
       if (event.key === 'Enter') {
@@ -13,11 +13,11 @@ function GuessInput({ handleGuess, guessRef, isDisabled}) {
           
           // Input validation
           if (guess.length === 0) {
-              setPlaceHolder('Please enter a guess');
+              setPlaceHolder('Please enter a song guess');
               return;
           }
           if (guess.length > MAX_LENGTH) {
-              setPlaceHolder(`Guess must be ${MAX_LENGTH} characters or less`);
+              setPlaceHolder(`Song guess must be ${MAX_LENGTH} characters or less`);
               return;
           }
 
@@ -30,7 +30,7 @@ function GuessInput({ handleGuess, guessRef, isDisabled}) {
           setPlaceHolder(`Maximum ${MAX_LENGTH} characters allowed`) }
      else {
         event.target.value = event.target.value.slice(0, MAX_LENGTH);
-        setPlaceHolder('Enter Guess...')
+        setPlaceHolder('Enter Song Guess...')
      }     
   };
 
