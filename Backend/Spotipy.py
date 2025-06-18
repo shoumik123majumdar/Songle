@@ -1,21 +1,16 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import pandas
-
+import os
+import hashlib
+import time
 
 class Spotipy:
     """
-    A wrapper class for interacting with the Spotify Web API.
-
-    Attributes:
-        CLIENT_ID (str): The Spotify API client ID
-        CLIENT_SECRET (str): The Spotify API client secret
-        CLIENT_SCOPE (str): The requested scope of permissions
-        sp (spotipy.Spotify): The authenticated Spotify client instance  
-        USER_ID (str): The authenticated user's Spotify ID
+    A wrapper class for interacting with the Spotify Web API
     """
 
-    def __init__(self, CLIENT_ID, CLIENT_SECRET,SCOPE):
+    def __init__(self, CLIENT_ID, CLIENT_SECRET, SCOPE, session_id=None):
         """
         Initialize the Spotipy wrapper with client credentials.
 
@@ -23,26 +18,50 @@ class Spotipy:
             CLIENT_ID (str): Spotify API client ID
             CLIENT_SECRET (str): Spotify API client secret  
             SCOPE (str): Requested API permission scopes
+            session_id (str, optional): Unique session identifier for multi-user support
         """
         self.CLIENT_ID = CLIENT_ID
         self.CLIENT_SECRET = CLIENT_SECRET
         self.CLIENT_SCOPE = SCOPE
         self.sp = None
         self.USER_ID = None
+        self.session_id = session_id or self._generate_session_id()
+
+    def _generate_session_id(self):
+        """Generate a unique session ID"""
+        import random
+        timestamp = str(time.time())
+        random_data = str(random.randint(1000, 9999))
+        return hashlib.md5(f"{timestamp}_{random_data}".encode()).hexdigest()[:12]
 
     def authenticate_user(self):
         """
         Authenticate with Spotify using OAuth flow.
-        Sets up the authenticated Spotify client and gets user ID.
+        Uses session-specific cache to handle multiple users.
         """
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-            client_id= self.CLIENT_ID,
-            client_secret= self.CLIENT_SECRET,
+        # Create session-specific cache path
+        cache_path = f".cache_{self.session_id}"
+        
+        auth_manager = SpotifyOAuth(
+            client_id=self.CLIENT_ID,
+            client_secret=self.CLIENT_SECRET,
             redirect_uri="http://localhost:3000/callback",
-            scope=  self.CLIENT_SCOPE,
-            show_dialog=True
-        ))
+            scope=self.CLIENT_SCOPE,
+            show_dialog=True,
+            cache_path=cache_path
+        )
+        
+        self.sp = spotipy.Spotify(auth_manager=auth_manager)
         self.USER_ID = self.sp.current_user()['id']
+
+    def cleanup_cache(self):
+        """Clean up session-specific cache file"""
+        cache_file = f".cache_{self.session_id}"
+        try:
+            if os.path.exists(cache_file):
+                os.remove(cache_file)
+        except Exception as e:
+            print(f"Error cleaning up cache: {e}")
 
     #  Helper Method
     def __get_artists(self, list):
@@ -147,7 +166,6 @@ class Spotipy:
             song_id = [self.get_current_track()]
         self.sp.playlist_add_items(playlist_id, song_id)
 
-    
     def __get_top(self,item_type,limit):
         """
         Helper method to get user's top tracks or artists.
@@ -196,7 +214,6 @@ class Spotipy:
         """
         return self.__get_top("artist",artist_limit)
 
-    
     def get_current_user_recently_played(self,limit=50):
         """
         Get user's recently played tracks.
@@ -213,14 +230,12 @@ class Spotipy:
             tracks.append( item['track']['id'])
         return tracks
 
-   
     def get_track_info(self,track_id):
         """
         Get detailed information about a specific track.
 
         Args:
             track_id (str): Spotify track ID
-            preview_url (str): URL of the track preview audio
 
         Returns:
             dict: Dictionary containing track information including:
@@ -230,6 +245,7 @@ class Spotipy:
                 - album_name: Name of the album
                 - album_image_url: URL of album cover image
                 - genre: List of artist genres
+                - spotify_link: Spotify URL for the track
         """
         track = self.sp.track(track_id = track_id)
         track_info = {}
@@ -246,7 +262,6 @@ class Spotipy:
         track_info['spotify_link'] = track['external_urls']['spotify']
         return track_info
 
-
     def clean_track_name(self,track_name):
         """
         Remove extra information from track names (e.g. "(feat. Artist)" or "- Remix").
@@ -262,3 +277,6 @@ class Spotipy:
                 return track_name[:i].strip()
         return track_name
 
+    def __del__(self):
+        """Cleanup cache when object is destroyed"""
+        self.cleanup_cache()

@@ -43,8 +43,6 @@ function Game() {
     
     const guessRef = useRef(null);
 
-
-
     // Load game state on component mount or when gameId changes
     useEffect(() => {
         const loadGameState = async () => {
@@ -62,13 +60,26 @@ function Game() {
                 } catch (error) {
                     console.error('Error loading game state:', error);
                     
-                    // If game not found, remove from localStorage and redirect
-                    if (error.response && (error.response.status === 404 || error.response.status === 400)) {
-                        localStorage.removeItem(GAME_ID_STORAGE_KEY);
-                        setError('Game not found or expired. Redirecting to start...');
-                        setTimeout(() => navigate('/'), 2000);
+                    // Handle different error types
+                    if (error.response) {
+                        const status = error.response.status;
+                        const data = error.response.data;
+                        
+                        if (status === 404) {
+                            // Game not found or expired
+                            localStorage.removeItem(GAME_ID_STORAGE_KEY);
+                            setError('Game not found or expired. Redirecting to start...');
+                            setTimeout(() => navigate('/'), 2000);
+                        } else if (status === 401 && data.needs_spotify_auth) {
+                            // Spotify authentication required
+                            localStorage.removeItem(GAME_ID_STORAGE_KEY);
+                            setError('Spotify authentication expired. Redirecting to login...');
+                            setTimeout(() => navigate('/'), 2000);
+                        } else {
+                            setError('Failed to load game. Please try again.');
+                        }
                     } else {
-                        setError('Failed to load game. Please try again.');
+                        setError('Network error. Please check your connection.');
                     }
                 } finally {
                     setIsLoading(false);
@@ -195,11 +206,29 @@ function Game() {
             guessRef.current.value = '';
         } catch (error) {
             console.error('Error submitting guess:', error);
-            if (error.response && error.response.status === 404) {
-                // Game expired during play
-                localStorage.removeItem(GAME_ID_STORAGE_KEY);
-                setError('Game expired. Redirecting to start...');
-                setTimeout(() => navigate('/'), 2000);
+            
+            if (error.response) {
+                const status = error.response.status;
+                const data = error.response.data;
+                
+                if (status === 404) {
+                    // Game expired during play
+                    localStorage.removeItem(GAME_ID_STORAGE_KEY);
+                    setError('Game expired. Redirecting to start...');
+                    setTimeout(() => navigate('/'), 2000);
+                } else if (status === 401 && data.needs_spotify_auth) {
+                    // Spotify session expired during game
+                    localStorage.removeItem(GAME_ID_STORAGE_KEY);
+                    setError('Spotify session expired. Redirecting to login...');
+                    setTimeout(() => navigate('/'), 2000);
+                } else {
+                    setError('Failed to submit guess. Please try again.');
+                    // Don't redirect, let user try again
+                    setTimeout(() => setError(null), 3000);
+                }
+            } else {
+                setError('Network error. Please check your connection.');
+                setTimeout(() => setError(null), 3000);
             }
         }
     };
