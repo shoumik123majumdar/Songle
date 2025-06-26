@@ -40,6 +40,7 @@ function Game() {
     const [gameIsWon, setGameIsWon] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showRecoveredMessage, setShowRecoveredMessage] = useState(null);
     
     const guessRef = useRef(null);
 
@@ -57,6 +58,19 @@ function Game() {
                     const data = response.data;
                     
                     updateGameStateFromResponse(data);
+                    
+                    // Show recovered message if this game was already completed or has special flags
+                    if (data.is_existing_game && !location.state?.albumURL) {
+                        if (data.game_data_expired) {
+                            setShowRecoveredMessage("⚠️ Loaded your game from today (some data may be missing due to cache expiration)");
+                        } else if (data.game_data_missing) {
+                            setShowRecoveredMessage("⚠️ You've already played today (detailed game data not available)");
+                        } else {
+                            setShowRecoveredMessage("📱 Loaded your completed game from today!");
+                        }
+                        setTimeout(() => setShowRecoveredMessage(null), 7000); // Hide after 7 seconds
+                    }
+                    
                 } catch (error) {
                     console.error('Error loading game state:', error);
                     
@@ -276,6 +290,27 @@ function Game() {
 
     return (
         <div className="game-container">
+            {/* Recovered game message */}
+            {showRecoveredMessage && (
+                <div style={{
+                    position: 'fixed',
+                    top: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: showRecoveredMessage.startsWith('⚠️') ? '#f39c12' : '#1db954',
+                    color: 'white',
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    fontSize: '14px',
+                    maxWidth: '80%',
+                    textAlign: 'center'
+                }}>
+                    {showRecoveredMessage}
+                </div>
+            )}
+            
             <div className="guesses-section">
                 <ul className="guess-list">
                     {guesses.map((guess, index) => {
@@ -347,7 +382,7 @@ function Game() {
                             cursor: 'pointer'
                         }}
                     >
-                        Play Again
+                        Play Again Tomorrow
                     </button>
                 )}
             </div>

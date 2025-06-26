@@ -1,86 +1,73 @@
 import axios from 'axios';
 import connect_with_spotify from './connect-with-spotify.png';
-import {useNavigate} from 'react-router-dom';
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 
 // Key for localStorage
 const GAME_ID_STORAGE_KEY = 'harmony_hunt_game_id';
 
 const LoginButton = () => {
-    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState('idle'); // 'idle', 'authenticating', 'starting_game'
     const requestInProgress = useRef(false);
+    const clickBlocked = useRef(false);
+    const lastClickTime = useRef(0);
+
+    // Reset click blocking when loading finishes
+    useEffect(() => {
+        if (!isLoading) {
+            clickBlocked.current = false;
+        }
+    }, [isLoading]);
 
     const handleLogin = async () => {
-        // Prevent double clicks and multiple requests
-        if (isLoading || requestInProgress.current) {
-            console.log('Request already in progress, ignoring click');
+        
+        const now = Date.now();
+        
+        if (now - lastClickTime.current < 1000) {
+            console.log('Click blocked: too soon after last click');
+            return;
+        }
+        
+        if (isLoading || requestInProgress.current || clickBlocked.current) {
+            console.log('Click blocked: request already in progress');
             return;
         }
 
-        setIsLoading(true);
+        // Layer 3: Immediately set all blocking flags
+        lastClickTime.current = now;
+        clickBlocked.current = true;
         requestInProgress.current = true;
+        setIsLoading(true);
 
         try {
-            // Step 1: Authenticate with Spotify
+            // Step 1: Get Spotify auth URL
             setCurrentStep('authenticating');
-            console.log('Authenticating with Spotify...');
+            console.log('Getting Spotify auth URL...');
             
-            const authResponse = await axios.post('http://127.0.0.1:5000/spotify-login');
-            console.log("Spotify authentication successful:", authResponse.data);
+            const authUrlResponse = await axios.get('http://127.0.0.1:5000/get-auth-url');
+            const { auth_url, session_id } = authUrlResponse.data;
 
-            // Step 2: Start the game
-            setCurrentStep('starting_game');
-            console.log('Starting new game...');
-            
-            const gameResponse = await axios.post('http://127.0.0.1:5000/start-top-fifty-recents-game');
-            console.log("Game started successfully:", gameResponse.data);
+            // Store session_id in localStorage for the callback to use
+            localStorage.setItem('spotify_session_id', session_id);
 
-            // Extract data from response
-            const { game_id, album_cover } = gameResponse.data;
-
-            // Store game ID in localStorage
-            localStorage.setItem(GAME_ID_STORAGE_KEY, game_id);
-
-            // Navigate to game
-            navigate('/game', {
-                state: {
-                    gameId: game_id,
-                    albumURL: album_cover
-                },
-                replace: true
-            });
+            // Redirect to Spotify OAuth page
+            window.location.href = auth_url;
 
         } catch (error) {
-            console.error("Failed to start game:", error);
+            console.error("Failed to start authentication:", error);
             
-            // Handle different types of errors
             if (error.response) {
-                const status = error.response.status;
-                const data = error.response.data;
-                
-                if (status === 401 && data.needs_spotify_auth) {
-                    console.log("Spotify authentication required");
-                    alert("Spotify authentication failed. Please try again.");
-                } else if (status === 429) {
-                    console.log("User already played today");
-                    alert(data.error || "You've already played today! Come back tomorrow.");
-                } else if (status === 400) {
-                    console.log("Not enough recent tracks");
-                    alert(data.error || "Not enough recent tracks found. Listen to more music and try again!");
-                } else {
-                    console.log("Other error:", data.error);
-                    alert(data.error || "Failed to start game. Please try again.");
-                }
+                console.log("Error response:", error.response.data);
+                alert(error.response.data.error || "Failed to start authentication. Please try again.");
             } else {
                 console.log("Network or other error");
                 alert("Network error. Please check your connection and try again.");
             }
             
-            // Reset loading state on error
+            // Reset ALL loading state on error
             setIsLoading(false);
             requestInProgress.current = false;
+            clickBlocked.current = false;
             setCurrentStep('idle');
         }
     };
@@ -90,23 +77,37 @@ const LoginButton = () => {
             case 'authenticating':
                 return "Connecting to Spotify...";
             case 'starting_game':
-                return "Starting game...";
+                return "Loading your game...";
             default:
                 return isLoading ? "Loading..." : "Connect with spotify";
         }
     };
 
+    // Additional protection at the button level
+    const handleButtonClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Final check before calling handleLogin
+        if (isLoading || requestInProgress.current || clickBlocked.current) {
+            console.log('Button click blocked');
+            return;
+        }
+        
+        handleLogin();
+    };
+
     return (
         <div style={{ textAlign: 'center' }}>
             <button
-                onClick={handleLogin}
-                disabled={isLoading}
+                onClick={handleButtonClick}
+                disabled={isLoading || requestInProgress.current || clickBlocked.current}
                 style={{
-                    opacity: isLoading ? 0.7 : 1,
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    opacity: (isLoading || clickBlocked.current) ? 0.7 : 1,
+                    cursor: (isLoading || clickBlocked.current) ? 'not-allowed' : 'pointer',
                     border: 'none',
                     background: 'transparent',
-                    pointerEvents: isLoading ? 'none' : 'auto'
+                    pointerEvents: (isLoading || clickBlocked.current) ? 'none' : 'auto'
                 }}
             >
                 <img
@@ -116,7 +117,10 @@ const LoginButton = () => {
                     height="50"
                     alt={getButtonText()}
                     draggable={false}
-                    style={{ userSelect: 'none' }}
+                    style={{ 
+                        userSelect: 'none',
+                        pointerEvents: 'none' // Prevent clicking image directly
+                    }}
                 />
             </button>
             

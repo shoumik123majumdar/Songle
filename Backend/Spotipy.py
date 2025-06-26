@@ -7,25 +7,27 @@ import time
 
 class Spotipy:
     """
-    A wrapper class for interacting with the Spotify Web API
+    A wrapper class for interacting with the Spotify Web API with manual OAuth flow
     """
 
-    def __init__(self, CLIENT_ID, CLIENT_SECRET, SCOPE, session_id=None):
+    def __init__(self, CLIENT_ID, CLIENT_SECRET, scope, session_id=None):
         """
         Initialize the Spotipy wrapper with client credentials.
 
         Args:
             CLIENT_ID (str): Spotify API client ID
             CLIENT_SECRET (str): Spotify API client secret  
-            SCOPE (str): Requested API permission scopes
+            scope (str): Requested API permission scopes
             session_id (str, optional): Unique session identifier for multi-user support
         """
         self.CLIENT_ID = CLIENT_ID
         self.CLIENT_SECRET = CLIENT_SECRET
-        self.CLIENT_SCOPE = SCOPE
+        self.CLIENT_SCOPE = scope
         self.sp = None
         self.USER_ID = None
         self.session_id = session_id or self._generate_session_id()
+        self.auth_manager = None
+        self.display_name = None
 
     def _generate_session_id(self):
         """Generate a unique session ID"""
@@ -34,34 +36,78 @@ class Spotipy:
         random_data = str(random.randint(1000, 9999))
         return hashlib.md5(f"{timestamp}_{random_data}".encode()).hexdigest()[:12]
 
-    def authenticate_user(self):
+    def get_auth_url(self, redirect_uri):
         """
-        Authenticate with Spotify using OAuth flow.
-        Uses session-specific cache to handle multiple users.
-        """
-        # Create session-specific cache path
-        cache_path = f".cache_{self.session_id}"
+        Generate the Spotify authorization URL for OAuth flow.
         
-        auth_manager = SpotifyOAuth(
+        Args:
+            redirect_uri (str): The redirect URI for OAuth callback
+            
+        Returns:
+            str: The authorization URL
+        """
+        # Create auth manager without cache for manual flow
+        self.auth_manager = SpotifyOAuth(
             client_id=self.CLIENT_ID,
             client_secret=self.CLIENT_SECRET,
-            redirect_uri="http://localhost:3000/callback",
+            redirect_uri=redirect_uri,
             scope=self.CLIENT_SCOPE,
             show_dialog=True,
-            cache_path=cache_path
+            state=self.session_id,  # Use session_id as state
+            cache_handler=None  # No cache for manual flow
         )
         
-        self.sp = spotipy.Spotify(auth_manager=auth_manager)
-        self.USER_ID = self.sp.current_user()['id']
+        auth_url = self.auth_manager.get_authorize_url()
+        return auth_url
 
-    def cleanup_cache(self):
-        """Clean up session-specific cache file"""
-        cache_file = f".cache_{self.session_id}"
-        try:
-            if os.path.exists(cache_file):
-                os.remove(cache_file)
-        except Exception as e:
-            print(f"Error cleaning up cache: {e}")
+    def complete_auth(self, code, redirect_uri):
+        """
+        Complete the OAuth flow by exchanging the code for tokens.
+        
+        Args:
+            code (str): The authorization code from Spotify
+            redirect_uri (str): The redirect URI used in the initial request
+            
+        Returns:
+            bool: True if authentication successful
+        """
+        if not self.auth_manager:
+            self.auth_manager = SpotifyOAuth(
+                client_id=self.CLIENT_ID,
+                client_secret=self.CLIENT_SECRET,
+                redirect_uri=redirect_uri,
+                scope=self.CLIENT_SCOPE,
+                cache_handler=None
+            )
+        
+        # Get token using the code
+        token_info = self.auth_manager.get_access_token(code, as_dict=True)
+        
+        if token_info:
+            # Create Spotify client with the token
+            self.sp = spotipy.Spotify(auth=token_info['access_token'])
+            
+            # Store token info for later use
+            self.token_info = token_info
+            
+            # Get user info
+            user_info = self.sp.current_user()
+            self.USER_ID = user_info['id']
+            self.display_name = user_info.get('display_name', 'Unknown')
+            
+            return True
+        return False
+
+    def refresh_token_if_needed(self):
+        """
+        Check if token needs refresh and refresh it if necessary.
+        """
+        if self.auth_manager and hasattr(self, 'token_info'):
+            if self.auth_manager.is_token_expired(self.token_info):
+                self.token_info = self.auth_manager.refresh_access_token(
+                    self.token_info['refresh_token']
+                )
+                self.sp = spotipy.Spotify(auth=self.token_info['access_token'])
 
     #  Helper Method
     def __get_artists(self, list):
@@ -96,6 +142,7 @@ class Spotipy:
             str: Track ID if a track is playing
             bool: False if nothing is playing
         """
+        self.refresh_token_if_needed()
         response = self.sp.current_playback()
         if response != None:
             device_name = response['device']['name']
@@ -119,6 +166,7 @@ class Spotipy:
             List[str]: List of playlist names
             bool: False if no playlists found
         """
+        self.refresh_token_if_needed()
         response = self.sp.current_user_playlists()
         list_playlists = []
         if response != None:
@@ -136,6 +184,7 @@ class Spotipy:
             name (str): Name of the playlist
             description (str, optional): Description of the playlist. Defaults to empty string.
         """
+        self.refresh_token_if_needed()
         self.sp.user_playlist_create(self.USER_ID, public=True, description=description, name=name)
 
     def get_playlist_id(self, playlist_name):
@@ -148,6 +197,7 @@ class Spotipy:
         Returns:
             str: Playlist ID if found
         """
+        self.refresh_token_if_needed()
         list = self.sp.user_playlists(self.USER_ID)['items']
         for item in list:
             if item['name'] == playlist_name:
@@ -161,6 +211,7 @@ class Spotipy:
             playlist_name (str): Name of the target playlist
             song_id (str/List[str], optional): Track ID(s) to add. If None, adds currently playing track.
         """
+        self.refresh_token_if_needed()
         playlist_id = self.get_playlist_id(playlist_name)
         if song_id is None:
             song_id = [self.get_current_track()]
@@ -177,6 +228,7 @@ class Spotipy:
         Returns:
             List[str]: List of track/artist names
         """
+        self.refresh_token_if_needed()
         list_item = []
         if(item_type == "track"):
             track_response = self.sp.current_user_top_tracks(limit=limit)
@@ -224,6 +276,7 @@ class Spotipy:
         Returns:
             List[str]: List of track IDs
         """
+        self.refresh_token_if_needed()
         response = self.sp.current_user_recently_played(limit=limit)['items']
         tracks = []
         for item in response:
@@ -247,6 +300,7 @@ class Spotipy:
                 - genre: List of artist genres
                 - spotify_link: Spotify URL for the track
         """
+        self.refresh_token_if_needed()
         track = self.sp.track(track_id = track_id)
         track_info = {}
 
@@ -277,6 +331,4 @@ class Spotipy:
                 return track_name[:i].strip()
         return track_name
 
-    def __del__(self):
-        """Cleanup cache when object is destroyed"""
-        self.cleanup_cache()
+    

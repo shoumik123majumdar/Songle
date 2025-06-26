@@ -1,4 +1,3 @@
-import logo from './harmony-hunt-logo_480.png';
 import './login_page.css';
 import LoginButton from './LoginButton'
 
