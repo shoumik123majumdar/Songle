@@ -1,10 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function AudioPlayer({ audioSource, type, autoPlayOnMount = false }) {
+function AudioPlayer({ 
+    audioSource, 
+    type, 
+    autoPlayOnMount = false, 
+    hasBeenPlayed = false,  // From Game component (only matters for snippets)
+    onPlayed = null         // Callback to notify Game component
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [canRender, setCanRender] = useState(true);  // New state for controlling render
   const audioRef = useRef(null);
+
+  // Determine if we should show the button
+  const shouldShowButton = () => {
+    // Full audio clip (end of game) - ALWAYS show button and allow multiple plays
+    if (type === 'full') {
+      return true;
+    }
+    
+    // Snippet audio (during game) - only show if it hasn't been played yet
+    // Once played, button disappears permanently for this game
+    if (type === 'snippet') {
+      return !hasBeenPlayed;
+    }
+    
+    // Default fallback
+    return true;
+  };
 
   useEffect(() => {
     // Create new Audio instance
@@ -24,9 +46,11 @@ function AudioPlayer({ audioSource, type, autoPlayOnMount = false }) {
 
     audioRef.current.addEventListener('ended', () => {
       setIsPlaying(false);
-      // Only remove the player if it's a snippet
-      if (type === 'snippet') {
-        setCanRender(false);
+      
+      // For snippets, notify parent when audio finishes playing
+      // This is when the button should disappear
+      if (type === 'snippet' && onPlayed && !hasBeenPlayed) {
+        onPlayed();
       }
     });
 
@@ -37,7 +61,7 @@ function AudioPlayer({ audioSource, type, autoPlayOnMount = false }) {
         audioRef.current.src = '';
       }
     };
-  }, [audioSource, type]);
+  }, [audioSource, type, autoPlayOnMount]);
 
   const handleAutoPlay = async () => {
     try {
@@ -57,6 +81,9 @@ function AudioPlayer({ audioSource, type, autoPlayOnMount = false }) {
       } else {
         await audioRef.current.play();
         setIsPlaying(true);
+        
+        // No immediate onPlayed() call here - let the snippet play
+        // Button will disappear when audio ends (in 'ended' event listener)
       }
     } catch (error) {
       console.log('PlayBack failed:', error);
@@ -64,10 +91,9 @@ function AudioPlayer({ audioSource, type, autoPlayOnMount = false }) {
     }
   };
 
-  // Only render if canRender is true
   return (
     <div>
-      {isLoaded && canRender && (
+      {isLoaded && shouldShowButton() && (
         <button
           className={`button ${isPlaying ? 'clicked' : ''}`}
           onClick={togglePlay}

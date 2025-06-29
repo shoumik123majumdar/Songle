@@ -11,7 +11,7 @@ import GameOverMessage from './GameOverMessage';
 import './game_styles.css'
 import axios from 'axios';
 
-// Key for localStorage
+// Keys for localStorage
 const GAME_ID_STORAGE_KEY = 'harmony_hunt_game_id';
 
 function Game() {
@@ -42,7 +42,22 @@ function Game() {
     const [error, setError] = useState(null);
     const [showRecoveredMessage, setShowRecoveredMessage] = useState(null);
     
+    // Audio snippet tracking
+    const [snippetPlayed, setSnippetPlayed] = useState(false);
+    
     const guessRef = useRef(null);
+
+    // Helper function to get localStorage key for snippet played state
+    const getSnippetPlayedKey = (gameId) => `harmony_hunt_snippet_played_${gameId}`;
+
+    // Load snippet played state from localStorage when gameId changes
+    useEffect(() => {
+        if (gameId) {
+            const snippetPlayedKey = getSnippetPlayedKey(gameId);
+            const wasPlayed = localStorage.getItem(snippetPlayedKey) === 'true';
+            setSnippetPlayed(wasPlayed);
+        }
+    }, [gameId]);
 
     // Load game state on component mount or when gameId changes
     useEffect(() => {
@@ -166,6 +181,18 @@ function Game() {
         }, 0);
     };
 
+    // Callback function when snippet is played
+    const handleSnippetPlayed = () => {
+        if (gameId) {
+            // Save to localStorage for persistence across refreshes
+            const snippetPlayedKey = getSnippetPlayedKey(gameId);
+            localStorage.setItem(snippetPlayedKey, 'true');
+            
+            // Update local state for immediate UI feedback
+            setSnippetPlayed(true);
+        }
+    };
+
     // Handle guess submission
     const handleGuess = async () => {
         if (!guessRef.current.value || !gameId) return;
@@ -249,6 +276,11 @@ function Game() {
 
     // Start a new game
     const startNewGame = () => {
+        // Clean up localStorage for current game
+        if (gameId) {
+            const snippetPlayedKey = getSnippetPlayedKey(gameId);
+            localStorage.removeItem(snippetPlayedKey);
+        }
         localStorage.removeItem(GAME_ID_STORAGE_KEY);
         navigate('/');
     };
@@ -346,6 +378,8 @@ function Game() {
                             audioSource={audioSnippet}
                             type="snippet"
                             autoPlayOnMount={false}
+                            hasBeenPlayed={snippetPlayed}
+                            onPlayed={handleSnippetPlayed}
                         />
                     )}
                     

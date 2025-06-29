@@ -20,7 +20,6 @@ const LoginButton = () => {
     }, [isLoading]);
 
     const handleLogin = async () => {
-        
         const now = Date.now();
         
         if (now - lastClickTime.current < 1000) {
@@ -40,7 +39,6 @@ const LoginButton = () => {
         setIsLoading(true);
 
         try {
-            // Step 1: Get Spotify auth URL
             setCurrentStep('authenticating');
             console.log('Getting Spotify auth URL...');
             
@@ -48,7 +46,7 @@ const LoginButton = () => {
             const { auth_url, session_id } = authUrlResponse.data;
 
             // Store session_id in localStorage for the callback to use
-            localStorage.setItem('spotify_session_id', session_id);
+            localStorage.setItem('spotify_session_id', session_id); 
 
             // Redirect to Spotify OAuth page
             window.location.href = auth_url;
@@ -83,7 +81,7 @@ const LoginButton = () => {
         }
     };
 
-    // Additional protection at the button level
+    // Additional protection against double clicks at the button level
     const handleButtonClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -93,7 +91,6 @@ const LoginButton = () => {
             console.log('Button click blocked');
             return;
         }
-        
         handleLogin();
     };
 

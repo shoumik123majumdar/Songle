@@ -1,25 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CallbackHandler = () => {
   const navigate = useNavigate();
+  const hasProcessed = useRef(false);
+  const isProcessing = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Prevent double execution
+      if (hasProcessed.current || isProcessing.current) {
+        console.log('Callback already processed or in progress, skipping...');
+        return;
+      }
+
+      // Get URL parameters
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
 
       if (!code) {
-        alert('Missing Spotify authorization code.');
-        navigate('/');
+        if (!hasProcessed.current) {
+          alert('Missing Spotify authorization code.');
+          navigate('/');
+        }
         return;
       }
+
+      // Mark as processing
+      isProcessing.current = true;
 
       try {
         // Step 1: Exchange code for tokens and get user info
         console.log('Exchanging code for tokens...');
+        console.log('Code:', code.substring(0, 10) + '...');
+        console.log('State:', state);
+        
         const authResponse = await axios.post('http://127.0.0.1:5000/exchange-code', {
           code: code,
           state: state
@@ -46,6 +63,9 @@ const CallbackHandler = () => {
         
         console.log('Game started:', { game_id, is_existing_game });
 
+        // Mark as successfully processed
+        hasProcessed.current = true;
+
         // Navigate to game
         navigate('/game', {
           state: {
@@ -58,27 +78,42 @@ const CallbackHandler = () => {
       } catch (error) {
         console.error('Authentication or game start failed:', error);
         
-        if (error.response) {
-          const status = error.response.status;
-          const errorMsg = error.response.data.error || 'An error occurred';
-          
-          if (status === 401) {
-            alert('Authentication failed. Please try again.');
-          } else if (status === 400) {
-            alert(errorMsg);
+        // Only show error if we haven't already processed successfully
+        if (!hasProcessed.current) {
+          if (error.response) {
+            const status = error.response.status;
+            const errorMsg = error.response.data?.error || 'An error occurred';
+            
+            if (status === 401) {
+              if (errorMsg.includes('invalid_grant') || errorMsg.includes('already used')) {
+                alert('This login link has already been used. Please start the login process again.');
+              } else {
+                alert('Authentication failed. Please try again.');
+              }
+            } else if (status === 403) {
+              alert('Your Spotify account is not authorized to use this app. Please contact the developer.');
+            } else if (status === 400) {
+              alert(errorMsg);
+            } else {
+              alert('Failed to complete login. Please try again.');
+            }
           } else {
-            alert('Failed to complete login. Please try again.');
+            alert('Network error. Please check your connection.');
           }
-        } else {
-          alert('Network error. Please check your connection.');
+          
+          navigate('/');
         }
-        
-        navigate('/');
+      } finally {
+        isProcessing.current = false;
       }
     };
 
-    handleCallback();
-  }, [navigate]);
+    // Only run if we have a code in the URL and haven't processed yet
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code') && !hasProcessed.current && !isProcessing.current) {
+      handleCallback();
+    }
+  }, []); // Empty dependency array - only run once
 
   return (
     <div style={{

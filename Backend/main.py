@@ -95,6 +95,7 @@ def exchange_code():
     Exchange Spotify authorization code for access tokens and return user info.
     This replaces the redirect-based spotify-callback.
     """
+    clear_cache()
     data = request.get_json()
     code = data.get("code")
     state = data.get("state")  # This is the session_id
